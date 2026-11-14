@@ -31,17 +31,17 @@ export function MobileAppPromo({ text }: MobileAppPromoProps) {
           </div>
         </div>
 
-        <div role="img" aria-label={text.mobilePreviewLabel} className="relative mx-auto flex min-h-[470px] w-full max-w-[620px] items-center justify-center overflow-hidden rounded-[2rem] bg-[#eaf0e5] px-3 py-8 dark:bg-[#202e23] sm:min-h-[520px] sm:px-6">
+        <div role="img" aria-label={text.mobilePreviewLabel} className="relative mx-auto flex min-h-[540px] w-full max-w-[620px] items-center justify-center overflow-hidden rounded-[2rem] bg-[#eaf0e5] px-3 py-8 dark:bg-[#202e23] sm:min-h-[520px] sm:px-6">
           <div aria-hidden="true" className="absolute -bottom-24 -left-12 size-80 rounded-full bg-[#d7e5d2] dark:bg-[#2b4131]" />
           <div aria-hidden="true" className="absolute -right-20 -top-16 size-80 rounded-full bg-[#dce8d7] dark:bg-[#273a2b]" />
 
-          <div className="absolute left-[3%] top-[27%] z-20 w-[37%] max-w-[190px] rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_40px_-22px_rgba(23,63,43,0.35)] dark:border-[#405346] dark:bg-[#19251d] sm:left-[7%] sm:w-[36%] sm:p-4">
-            <div className="flex items-center justify-between gap-2 text-[9px] sm:text-[11px]"><span className="font-semibold">{text.mobileProgressTitle}</span><span className="font-semibold text-[#315d3c] dark:text-[#a9d4a8]">40%</span></div>
-            <p className="mt-1 text-[8px] text-[#718078] dark:text-[#a3b0a7] sm:text-[10px]">{text.mobileProgressCount}</p>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e5ece3] dark:bg-[#34443a]"><div className="h-full w-2/5 rounded-full bg-[#5c9567]" /></div>
+          <div className="absolute left-[3%] top-[2%] z-20 w-[40%] max-w-[190px] rounded-2xl border border-white/80 bg-white/95 p-2 shadow-[0_18px_40px_-22px_rgba(23,63,43,0.35)] dark:border-[#405346] dark:bg-[#19251d] sm:left-[1%] sm:top-[27%] sm:w-[22%] sm:p-3">
+            <div className="flex items-center justify-between gap-2 text-[8px] sm:text-[10px]"><span className="font-semibold">{text.mobileProgressTitle}</span><span className="font-semibold text-[#315d3c] dark:text-[#a9d4a8]">40%</span></div>
+            <p className="mt-1 text-[7px] leading-tight text-[#718078] dark:text-[#a3b0a7] sm:text-[9px]">{text.mobileProgressCount}</p>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#e5ece3] dark:bg-[#34443a]"><div className="h-full w-2/5 rounded-full bg-[#5c9567]" /></div>
           </div>
 
-          <div className="relative z-10 h-[410px] w-[min(66%,260px)] rounded-[2.25rem] border-[5px] border-[#183d2b] bg-[#183d2b] p-1.5 shadow-[0_28px_65px_-25px_rgba(0,0,0,0.38)] sm:h-[460px] sm:w-[min(58%,280px)]">
+          <div className="relative z-10 h-[410px] w-[min(80%,260px)] rounded-[2.25rem] border-[5px] border-[#183d2b] bg-[#183d2b] p-1.5 shadow-[0_28px_65px_-25px_rgba(0,0,0,0.38)] sm:h-[460px] sm:w-[min(58%,280px)]">
             <div className="relative h-full overflow-hidden rounded-[1.8rem] bg-[#fafaf7] px-3.5 pb-3 pt-4 text-[#18211c] sm:px-4 sm:pt-5">
               <span aria-hidden="true" className="absolute left-1/2 top-1.5 h-4 w-[34%] -translate-x-1/2 rounded-full bg-[#17211a]" />
               <div className="mt-3 flex items-center justify-between">
@@ -83,13 +83,11 @@ export function MobileAppPromo({ text }: MobileAppPromoProps) {
             </div>
           </div>
 
-          <div className="absolute bottom-[17%] right-[3%] z-20 w-[37%] max-w-[190px] space-y-2 rounded-2xl border border-white/80 bg-white/95 p-3 shadow-[0_18px_40px_-22px_rgba(23,63,43,0.35)] dark:border-[#405346] dark:bg-[#19251d] sm:bottom-[20%] sm:right-[6%] sm:w-[35%] sm:p-4">
-            {[text.samplePlan, text.firstTask].map((task, index) => (
-              <div key={task} className="flex min-w-0 items-center gap-2 text-[8px] sm:text-[10px]">
-                <span className={`grid size-4 shrink-0 place-items-center rounded-full ${index === 0 ? "bg-[#5c9567] text-white" : "border border-[#bdcbbd] text-transparent"}`}>{index === 0 && <Check className="size-2.5" />}</span>
-                <span className={`truncate ${index === 0 ? "text-[#718078] line-through" : "font-medium"}`}>{task}</span>
-              </div>
-            ))}
+          <div className="absolute bottom-[2%] right-[3%] z-20 w-[42%] max-w-[190px] rounded-2xl border border-white/80 bg-white/95 p-2 shadow-[0_18px_40px_-22px_rgba(23,63,43,0.35)] dark:border-[#405346] dark:bg-[#19251d] sm:bottom-[20%] sm:right-[1%] sm:w-[22%] sm:p-3">
+            <div className="flex min-w-0 items-center gap-2 text-[8px] leading-tight sm:text-[9px]">
+              <span className="grid size-4 shrink-0 place-items-center rounded-full bg-[#5c9567] text-white"><Check className="size-2.5" /></span>
+              <span className="min-w-0 text-[#718078] line-through">{text.samplePlan}</span>
+            </div>
           </div>
         </div>
       </div>

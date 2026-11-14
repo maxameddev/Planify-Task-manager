@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Planify
 
 Planify is a simple task planning app built with Next.js App Router and Tailwind CSS.
@@ -47,3 +48,7 @@ components/                  Shared branding, theme, language, and UI primitives
 lib/                         Shared database and localization infrastructure
 tests/                       Unit tests for task and auth rules
 ```
+=======
+# Planify-Task-manager
+Planify is simple web app that manager your daily task created for managers, students, Freelancer and multitasker.
+>>>>>>> dffebfb04c4aa557e706f1a7495a8029f090d3fe
