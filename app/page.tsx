@@ -1,69 +1,231 @@
+"use client";
+
+import { HeroHeadline } from "@/components/heroHeadline";
+import { MobileNavigation } from "@/components/mobileNavigation";
+
+import Link from "next/link";
+import { BrandLogo } from "@/components/brandLogo";
+import { LanguageSwitcher } from "@/components/languageSwitcher";
+import { ThemeSwitcher } from "@/components/themeSwitcher";
+import { useLanguage } from "@/components/languageProvider";
+import { MobileAppPromo } from "@/components/mobileAppPromo";
+import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { Briefcase, ChartNoAxesColumnIncreasing, GraduationCap, Laptop, ListChecks, LogIn, Play, ShieldCheck, UserRound, Users, Zap } from "lucide-react";
+import { LandingDashboardPreview } from "@/components/landingDashboardPreview";
+import { authClient } from "@/features/auth/client";
 
 export default function Home() {
+  const { text } = useLanguage();
+  const { data: session, isPending } = authClient.useSession();
+  const isSignedIn = Boolean(session?.user);
+  const features = [
+    { number: "01", icon: ListChecks, title: text.featureOneTitle, description: text.featureOneBody },
+    { number: "02", icon: ChartNoAxesColumnIncreasing, title: text.featureTwoTitle, description: text.featureTwoBody },
+    { number: "03", icon: UserRound, title: text.featureThreeTitle, description: text.featureThreeBody },
+  ];
+  const testimonials = [
+    { name: text.testimonialNameOne, role: text.testimonialRoleOne, quote: text.testimonialQuoteOne, photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&h=160&q=85" },
+    { name: text.testimonialNameTwo, role: text.testimonialRoleTwo, quote: text.testimonialQuoteTwo, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&h=160&q=85" },
+    { name: text.testimonialNameThree, role: text.testimonialRoleThree, quote: text.testimonialQuoteThree, photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=160&h=160&q=85" },
+  ];
+  const audiences = [
+    { kind: "manager", icon: Briefcase, title: text.audienceManagerTitle, description: text.audienceManagerBody, image: "https://images.unsplash.com/photo-1758598306493-99e22e718e08?auto=format&fit=crop&w=1200&h=675&q=85" },
+    { kind: "student", icon: GraduationCap, title: text.audienceStudentTitle, description: text.audienceStudentBody, image: "https://images.unsplash.com/photo-1758685848895-e724272475d2?auto=format&fit=crop&w=1200&h=675&q=85" },
+    { kind: "professional", icon: Laptop, title: text.audienceProfessionalTitle, description: text.audienceProfessionalBody, image: "https://images.unsplash.com/photo-1758611970983-ff9f0ec0b0c0?auto=format&fit=crop&w=1200&h=675&q=85" },
+    { kind: "team", icon: Users, title: text.audienceTeamTitle, description: text.audienceTeamBody, image: "https://images.unsplash.com/photo-1758873268745-dd2cf0d677b5?auto=format&fit=crop&w=1200&h=675&q=85" },
+  ] as const;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main data-language-content className="min-h-screen overflow-x-clip bg-[#f8f8f5] text-[#18211c] dark:bg-[#111914] dark:text-[#e8eee9]">
+      <header className="sticky top-3 z-50 mx-auto mt-3 flex w-[calc(100%-2rem)] max-w-[1500px] items-center justify-between gap-2 rounded-full border border-[#e3e9e2] bg-white/95 px-4 py-1 shadow-[0_12px_32px_-20px_rgba(23,63,43,0.3)] backdrop-blur-md dark:border-[#34443a] dark:bg-[#18221b]/95 sm:w-[calc(100%-3rem)] lg:w-[calc(100%-4rem)] lg:px-6 lg:py-2 2xl:px-8">
+        <Link href="/" aria-label={text.homeLabel} className="shrink-0">
+          <BrandLogo size="sm" />
+        </Link>
+        <nav className="hidden items-center gap-0 lg:flex" aria-label={text.mainNavigation}>
+          <a href="#features" className="rounded-full px-2 py-2 text-[13px] font-medium text-[#526057] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:text-[#c3cec6] dark:hover:bg-[#29372e] xl:px-2.5 xl:text-sm">
+            {text.featuresLink}
+          </a>
+          <a href="#pricing" className="rounded-full px-2 py-2 text-[13px] font-medium text-[#526057] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:text-[#c3cec6] dark:hover:bg-[#29372e] xl:px-2.5 xl:text-sm">
+            {text.pricingLink}
+          </a>
+          <a href="#audience" className="rounded-full px-2 py-2 text-[13px] font-medium text-[#526057] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:text-[#c3cec6] dark:hover:bg-[#29372e] xl:px-2.5 xl:text-sm">
+            {text.audienceNavLink}
+          </a>
+          <a href="#testimonials" className="rounded-full px-2 py-2 text-[13px] font-medium text-[#526057] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:text-[#c3cec6] dark:hover:bg-[#29372e] xl:px-2.5 xl:text-sm">
+            {text.testimonialsNavLink}
+          </a>
+        </nav>
+        <nav className="hidden shrink-0 items-center gap-1 sm:gap-1.5 lg:flex xl:gap-2" aria-label={text.accountNavigation}>
+          <ThemeSwitcher />
+          <LanguageSwitcher />
+          {isPending ? (
+            <span aria-live="polite" aria-busy="true" className="rounded-full bg-[#173f2b]/70 px-3.5 py-2.5 text-xs font-semibold text-white sm:px-5 sm:text-sm">{text.checkingSession}</span>
+          ) : isSignedIn ? (
+            <Link href="/dashboard" aria-label={text.goToDashboard} className="rounded-full bg-[#173f2b] px-3.5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#24583b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:px-5 sm:text-sm">
+              <span className="hidden sm:inline">{text.goToDashboard}</span><span className="sm:hidden">{text.viewMyTasks}</span><span aria-hidden="true" className="ml-1">→</span>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" aria-label={text.signInLink} className="inline-flex size-9 items-center justify-center rounded-full text-sm font-medium text-[#526057] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:text-[#c3cec6] dark:hover:bg-[#29372e] sm:h-auto sm:w-auto sm:px-3 sm:py-2">
+                <LogIn className="size-4 sm:hidden" aria-hidden="true" /><span className="hidden sm:inline">{text.signInLink}</span>
+              </Link>
+              <Link href="/register" className="rounded-full bg-[#173f2b] px-3.5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#24583b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:px-5 sm:text-sm">
+                <span className="hidden sm:inline">{text.heroPrimary}</span><span className="sm:hidden">{text.startNow}</span><span aria-hidden="true" className="ml-1">→</span>
+              </Link>
+            </>
+          )}
+        </nav>
+        <MobileNavigation isSignedIn={isSignedIn} isPending={isPending} userName={session?.user?.name} userEmail={session?.user?.email} />
+      </header>
+
+      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-12 pt-10 sm:px-8 sm:pt-14 lg:min-h-[480px] lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-5 lg:pt-4 xl:min-h-[510px] xl:gap-5 2xl:min-h-[530px] 2xl:px-10">
+        <div className="relative z-10 max-w-[700px]">
+          <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d7e1d9] bg-white/75 px-4 py-2.5 text-xs font-semibold text-[#173f2b] shadow-sm dark:border-[#34443a] dark:bg-[#18221b]/80 dark:text-[#b5cfb8] sm:text-sm">
+            <span className="size-2.5 rounded-full bg-[#17984d] shadow-[0_0_0_3px_rgba(23,152,77,0.12)]" />{text.heroEyebrow}
           </p>
+          <HeroHeadline lead={text.headlineLead} middle={text.headlineMiddle} accent={text.headlineAccent} />
+          <p className="mt-5 max-w-[630px] text-base leading-7 text-[#525d55] dark:text-[#b4c0b7] xl:mt-6 xl:text-lg xl:leading-8">{text.heroDescription}</p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center xl:mt-7">
+            {isPending ? (
+              <span aria-live="polite" aria-busy="true" className="inline-flex h-12 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white xl:h-14 xl:px-8 xl:text-base">{text.checkingSession}</span>
+            ) : (
+              <Link href={isSignedIn ? "/dashboard" : "/register"} className="inline-flex h-12 items-center justify-center rounded-full bg-[#10482e] px-7 text-sm font-semibold text-white shadow-[0_10px_25px_-14px_rgba(16,72,46,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1b5c3a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 xl:h-14 xl:px-8 xl:text-base">
+                {isSignedIn ? text.viewMyTasks : text.heroPrimary}<span aria-hidden="true" className="ml-2 text-lg">→</span>
+              </Link>
+            )}
+            <a href="#features" className="inline-flex h-12 items-center justify-center rounded-full border border-[#cfd7d0] bg-white/70 px-6 text-sm font-semibold text-[#17221b] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:border-[#435247] dark:bg-[#18221b] dark:text-[#e8eee9] dark:hover:bg-[#24352a] xl:h-14 xl:px-7 xl:text-base">
+              <Play className="mr-2 size-5 fill-current" aria-hidden="true" />{text.heroSecondary}
+            </a>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="relative z-0 py-3 lg:py-0"><LandingDashboardPreview text={text} /></div>
+      </section>
+
+      <section aria-label={text.trustOrganizeTitle} className="mx-auto grid w-full max-w-[1500px] gap-6 px-6 pb-14 pt-4 sm:grid-cols-2 lg:-mt-10 lg:grid-cols-4 lg:gap-0 lg:px-8 lg:py-6 2xl:px-10">
+        {[
+          { icon: Users, title: text.trustOrganizeTitle, detail: text.trustOrganizeBody },
+          { icon: ChartNoAxesColumnIncreasing, title: text.trustProgressTitle, detail: text.trustProgressBody },
+          { icon: ShieldCheck, title: text.trustPrivateTitle, detail: text.trustPrivateBody },
+          { icon: Zap, title: text.trustSimpleTitle, detail: text.trustSimpleBody },
+        ].map(({ icon: Icon, title, detail }, index) => (
+          <div key={index} className={`flex items-center gap-4 ${index ? "lg:border-l lg:border-[#cfd7d0] lg:pl-8 xl:pl-12" : ""}`}>
+            <Icon className="size-9 shrink-0 text-[#176b3a] dark:text-[#a6c5a9]" aria-hidden="true" />
+            <div><p className="text-base font-semibold leading-tight">{title}</p><p className="mt-1 text-sm text-[#59665d] dark:text-[#b4c0b7]">{detail}</p></div>
+          </div>
+        ))}
+      </section>
+
+      <section id="features" className="scroll-mt-24 border-t border-[#e9ece7] bg-white/55 dark:border-[#2d3a31] dark:bg-[#18221b]/70">
+        <div className="mx-auto w-full max-w-[1500px] px-6 py-14 lg:px-10 lg:py-16">
+          <div className="mx-auto mb-9 max-w-2xl text-center sm:mb-11">
+            <p className="inline-flex items-center gap-2 rounded-full bg-[#eaf1e9] px-4 py-2 text-sm font-semibold text-[#214d31] dark:bg-[#24352a] dark:text-[#b9d1bc]">
+              <span aria-hidden="true" className="size-2.5 rounded-full bg-[#17984d] shadow-[0_0_0_3px_rgba(23,152,77,0.12)]" />{text.featuresLink}
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] sm:text-4xl lg:text-5xl">{text.howItWorksTitle}</h2>
+            <p className="mt-3 text-base leading-7 text-[#626f65] dark:text-[#b4c0b7]">{text.howItWorksDescription}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {features.map(({ number, icon: Icon, title, description }) => (
+              <article key={number} className="h-full min-h-[220px] rounded-[1.5rem] border border-[#dfe5de] bg-[#fcfcf9]/70 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#c9d8ca] hover:shadow-[0_18px_45px_-32px_rgba(23,63,43,0.35)] dark:border-[#34443a] dark:bg-[#151e18] dark:hover:border-[#526b58] sm:p-7">
+                <span className="mb-5 grid size-[68px] place-items-center rounded-[1.3rem] bg-[#e8f0e6] text-[#17482e] dark:bg-[#24392b] dark:text-[#b5cfb8]">
+                  <Icon className="size-9 stroke-[1.8]" aria-hidden="true" />
+                </span>
+                <h3 className="text-lg font-semibold tracking-[-0.025em] sm:text-xl">{title}</h3>
+                <p className="mt-2 max-w-[34ch] text-base leading-7 text-[#626f65] dark:text-[#b4c0b7]">{description}</p>
+              </article>
+            ))}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section id="pricing" className="scroll-mt-24 px-5 pb-14 sm:px-6 lg:px-10 lg:pb-16">
+        <div className="relative mx-auto flex max-w-[1500px] flex-col items-start justify-between gap-6 overflow-hidden rounded-[1.75rem] border border-[#e3e9df] bg-[#eef3eb] px-7 py-8 dark:border-[#34443a] dark:bg-[#1a291e] sm:px-10 lg:flex-row lg:items-center lg:px-16 lg:py-7">
+          <span aria-hidden="true" className="absolute -bottom-20 -left-12 size-48 rounded-full bg-[#74ad7c]/45 blur-[1px]" />
+          <span aria-hidden="true" className="absolute -right-14 -top-24 size-52 rounded-full bg-[#c7dfbd]/70 dark:bg-[#31533a]/60" />
+          <div className="relative z-10 max-w-2xl">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">{text.pricingTitle}</h2>
+            <p className="mt-2 text-base leading-6 text-[#626f65] dark:text-[#b4c0b7]">{text.pricingDescription}</p>
+          </div>
+          {isPending ? (
+            <span aria-live="polite" aria-busy="true" className="relative z-10 inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white sm:text-base">{text.checkingSession}</span>
+          ) : (
+            <Link href={isSignedIn ? "/dashboard" : "/register"} className="relative z-10 inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#10482e] px-7 text-sm font-semibold text-white shadow-[0_10px_25px_-14px_rgba(16,72,46,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1b5c3a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:text-base">{isSignedIn ? text.viewMyTasks : text.pricingCta}<span aria-hidden="true" className="ml-2 text-lg">→</span></Link>
+          )}
+        </div>
+      </section>
+
+      <section id="audience" className="scroll-mt-24 border-t border-[#e9ece7] bg-[#f1f4ef] dark:border-[#2d3a31] dark:bg-[#151e18]">
+        <div className="mx-auto w-full max-w-[1600px] px-6 py-14 lg:px-10 lg:py-16">
+          <div className="mx-auto mb-9 max-w-2xl text-center">
+            <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{text.audienceTitle}</h2>
+            <p className="mt-3 text-sm leading-6 text-[#626f65] dark:text-[#b4c0b7]">{text.audienceDescription}</p>
+          </div>
+          <div className="grid auto-rows-fr items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-4 2xl:gap-5">
+            {audiences.map(({ kind, icon: Icon, title, description, image }) => (
+              <Card key={kind} className="h-full min-h-[390px] gap-0 rounded-3xl border-[#e3e9e2] bg-white py-0 shadow-sm ring-0 transition-shadow duration-300 hover:shadow-[0_18px_45px_-32px_rgba(23,63,43,0.35)] dark:border-[#2d3a31] dark:bg-[#1a251e]">
+                <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden rounded-t-3xl bg-[#e8eee8]">
+                  <Image src={image} alt={title} fill unoptimized sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, 25vw" className="object-cover object-center brightness-[0.94] saturate-[0.88] transition-transform duration-500 hover:scale-[1.03]" />
+                  <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#173f2b]/10 via-transparent to-[#f1dfbf]/10" />
+                </div>
+                <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
+                  <div className="flex min-h-12 items-center gap-3">
+                    <Icon className="size-9 shrink-0 text-[#567b43] dark:text-[#a6c5a9]" strokeWidth={1.9} aria-hidden="true" />
+                    <h3 className="text-lg font-semibold leading-tight tracking-[-0.02em]">{title}</h3>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[#626f65] dark:text-[#b4c0b7]">{description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="testimonials" className="scroll-mt-24 border-t border-[#e9ece7] dark:border-[#2d3a31]">
+        <div className="mx-auto w-full max-w-7xl px-6 py-14 lg:px-10 lg:py-16">
+          <div className="mx-auto mb-9 max-w-2xl text-center">
+            <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{text.testimonialsTitle}</h2>
+            <p className="mt-3 text-sm leading-6 text-[#626f65] dark:text-[#b4c0b7]">{text.testimonialsDescription}</p>
+          </div>
+          <div className="grid items-start gap-7 md:grid-cols-3 md:gap-5 xl:gap-8">
+            {testimonials.map((testimonial, index) => (
+              <article key={testimonial.name} className="flex h-full flex-col">
+                <div className="mb-4 flex min-w-0 items-center gap-3">
+                  <Image src={testimonial.photo} alt={testimonial.name} width={96} height={96} sizes="48px" className="size-12 shrink-0 rounded-full object-cover ring-2 ring-[#e5ede4] dark:ring-[#34443a]" />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[#26352b] dark:text-[#e0e9e2]">{testimonial.name}</p>
+                    <p className="mt-0.5 text-xs text-[#626f65] dark:text-[#aab7ad]">{testimonial.role}</p>
+                  </div>
+                  <span className="ml-auto shrink-0 rounded-full bg-[#eaf1e9] px-2.5 py-1 text-[10px] font-semibold text-[#41604a] dark:bg-[#24352a] dark:text-[#c3d9c5]">{text.testimonialSampleLabel}</span>
+                </div>
+                <div className={`relative flex-1 rounded-[1.5rem] border p-6 shadow-[0_14px_36px_-30px_rgba(23,63,43,0.35)] ${index === 1 ? "border-[#e3e9e2] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" : "border-[#dfe8dc] bg-[#eef3eb] dark:border-[#34443a] dark:bg-[#202d24]"}`}>
+                  <span aria-hidden="true" className={`absolute -top-2 left-7 size-4 rotate-45 border-l border-t ${index === 1 ? "border-[#e3e9e2] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" : "border-[#dfe8dc] bg-[#eef3eb] dark:border-[#34443a] dark:bg-[#202d24]"}`} />
+                  <blockquote className="relative text-base leading-7 text-[#344139] dark:text-[#dce5de]">{testimonial.quote}</blockquote>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <MobileAppPromo text={text} />
+
+      <footer className="mx-auto max-w-7xl px-6 py-8 text-[#626f65] dark:text-[#a3b0a7] lg:px-10">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-start gap-2">
+            <BrandLogo size="sm" />
+            <p className="text-sm text-[#59665d] dark:text-[#b4c0b7]">{text.footerLine}</p>
+          </div>
+          <nav aria-label={text.sectionNavigation} className="flex items-center gap-5 text-sm font-medium">
+            <a href="#features" className="transition-colors hover:text-[#173f2b] dark:hover:text-[#b5cfb8]">{text.featuresLink}</a>
+            <a href="#pricing" className="transition-colors hover:text-[#173f2b] dark:hover:text-[#b5cfb8]">{text.pricingLink}</a>
+            {isPending ? <span aria-live="polite" aria-busy="true">{text.checkingSession}</span> : <Link href={isSignedIn ? "/dashboard" : "/login"} className="transition-colors hover:text-[#173f2b] dark:hover:text-[#b5cfb8]">{isSignedIn ? text.goToDashboard : text.signInLink}</Link>}
+          </nav>
+        </div>
+        <div className="mt-6 border-t border-[#e3e9e2] pt-4 text-xs dark:border-[#34443a]">
+          <span>© 2026 Planify</span>
+        </div>
+      </footer>
+    </main>
   );
 }

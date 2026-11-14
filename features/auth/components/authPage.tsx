@@ -1,0 +1,81 @@
+"use client";
+
+import { Suspense } from "react";
+import Link from "next/link";
+import { BrandLogo } from "@/components/brandLogo";
+import { AuthForm, RegisterAuthForm } from "@/features/auth/components/authForm";
+import { LanguageSwitcher } from "@/components/languageSwitcher";
+import { ThemeSwitcher } from "@/components/themeSwitcher";
+import { useLanguage } from "@/components/languageProvider";
+import { Spinner } from "@/components/ui/spinner";
+
+type AuthPageProps = { mode: "login" | "register" };
+
+function RegisterFormFallback({ loadingLabel }: { loadingLabel: string }) {
+  return (
+    <div role="status" aria-live="polite" className="mt-8">
+      <div className="mb-5 flex items-center gap-2 text-sm font-medium text-[#526057] dark:text-[#c3cec6]">
+        <Spinner />
+        <span>{loadingLabel}</span>
+      </div>
+      <div aria-hidden="true" className="space-y-5">
+        <div className="h-12 animate-pulse rounded-xl border border-[#dfe5de] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" />
+        <div className="h-12 animate-pulse rounded-xl border border-[#dfe5de] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" />
+        <div className="h-12 animate-pulse rounded-xl border border-[#dfe5de] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" />
+        <div className="h-12 animate-pulse rounded-xl bg-[#e5ebe4] dark:bg-[#29372e]" />
+      </div>
+    </div>
+  );
+}
+
+export function AuthPage({ mode }: AuthPageProps) {
+  const { text } = useLanguage();
+  const isRegister = mode === "register";
+
+  return (
+    <main data-language-content className="flex min-h-screen bg-[#f8f8f5] dark:bg-[#111914] text-[#18211c] dark:text-[#e8eee9]">
+      <section className="relative hidden w-1/2 flex-col justify-between overflow-hidden bg-[#173f2b] p-12 text-white lg:flex xl:p-16">
+        <div className="absolute -right-28 top-24 size-96 rounded-full border border-white/10" />
+        <div className="absolute -right-10 top-44 size-60 rounded-full border border-white/10" />
+        <Link href="/" className="relative flex items-center gap-3">
+          <BrandLogo inverse />
+        </Link>
+        <div className="relative max-w-lg">
+          <p className="mb-5 text-sm font-medium text-[#b8d0bc]">{text.sidebarEyebrow}</p>
+          <h1 className="text-5xl font-semibold leading-[1.1] tracking-[-0.05em]">{text.authMotto}</h1>
+          <p className="mt-6 max-w-md leading-7 text-white/65">{text.authPitch}</p>
+        </div>
+        <p className="relative text-xs text-white/45">© 2026 Planify · {text.footerMotto}</p>
+      </section>
+      <section className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-md">
+          <div className="mb-10 flex items-center justify-between">
+            <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-[#315d3c] dark:text-[#a6c5a9] lg:hidden">
+              <BrandLogo size="sm" />
+            </Link>
+            <span className="lg:hidden" />
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              <LanguageSwitcher />
+            </div>
+          </div>
+          <div className="mb-8">
+            <p className="text-sm font-medium text-[#6d9275]">{isRegister ? text.authWelcome : text.authReturning}</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{isRegister ? text.authTitleRegister : text.authTitleLogin}</h2>
+            <p className="mt-3 text-sm leading-6 text-[#768078] dark:text-[#b4c0b7]">
+              {isRegister ? text.authRegisterDescription : text.authLoginDescription}
+            </p>
+          </div>
+          {isRegister ? (
+            <Suspense fallback={<RegisterFormFallback loadingLabel={text.loadingForm} />}>
+              <RegisterAuthForm />
+            </Suspense>
+          ) : (
+            <AuthForm mode="login" />
+          )}
+        </div>
+      </section>
+    </main>
+  );
+}
+
