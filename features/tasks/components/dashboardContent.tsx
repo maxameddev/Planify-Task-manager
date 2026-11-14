@@ -22,6 +22,10 @@ import { createTaskRequest, deleteTaskRequest, fetchTasks, updateTaskRequest } f
 
 type DashboardContentProps = { userName: string; userEmail: string; userImage: string | null };
 
+function getRequestError(error: unknown) {
+  return error instanceof Error && error.message.trim() ? error.message : null;
+}
+
 export function DashboardContent({ userName, userEmail, userImage }: DashboardContentProps) {
   const { locale, text } = useLanguage();
   const router = useRouter();
@@ -37,6 +41,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [pinningTaskId, setPinningTaskId] = useState<string | null>(null);
   const [movingTaskId, setMovingTaskId] = useState<string | null>(null);
@@ -52,6 +57,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
   const [editStatus, setEditStatus] = useState<TaskStatus>("todo");
   const [editPriority, setEditPriority] = useState<TaskPriority>("medium");
   const [error, setError] = useState<"load" | "save" | "validation" | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
   const [dialogClosing, setDialogClosing] = useState(false);
   const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingDragFocus = useRef<string | null>(null);
@@ -80,8 +86,11 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
         if (!Array.isArray(loadedTasks)) throw new Error("load");
         if (isActive) setTasks(loadedTasks);
       })
-      .catch(() => {
-        if (isActive) setError("load");
+      .catch((failure: unknown) => {
+        if (isActive) {
+          setRequestError(getRequestError(failure));
+          setError("load");
+        }
       })
       .finally(() => {
         if (isActive) setIsLoading(false);
@@ -119,6 +128,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
 
   function openCreateDialog() {
     setError(null);
+    setRequestError(null);
     setDialogPosition(null);
     setIsCreateDialogOpen(true);
   }
@@ -177,6 +187,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
   async function createTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setRequestError(null);
     if (!title.trim()) {
       setError("validation");
       createTaskDialogRef.current?.querySelector<HTMLInputElement>("[name='task-title']")?.focus();
@@ -192,7 +203,8 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
       setStatus("todo");
       setPriority("medium");
       closeCreateDialog();
-    } catch {
+    } catch (failure: unknown) {
+      setRequestError(getRequestError(failure));
       setError("save");
     } finally {
       setIsCreating(false);
@@ -201,6 +213,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
 
   function startEditing(task: Task) {
     setError(null);
+    setRequestError(null);
     setEditingTaskId(task.id);
     setEditTitle(task.title);
     setEditDescription(task.description);
@@ -213,6 +226,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     event.preventDefault();
     if (!editingTaskId) return;
     if (!editTitle.trim()) {
+      setRequestError(null);
       setError("validation");
       document.querySelector<HTMLInputElement>("[data-edit-task-title]")?.focus();
       return;
@@ -235,6 +249,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     }
 
     setError(null);
+    setRequestError(null);
     setSavingTaskId(taskId);
     try {
       const updatedTask = await updateTaskRequest(taskId, {
@@ -246,7 +261,8 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
       });
       setTasks((current) => current.map((task) => task.id === taskId ? updatedTask : task));
       setEditingTaskId(null);
-    } catch {
+    } catch (failure: unknown) {
+      setRequestError(getRequestError(failure));
       setError("save");
     } finally {
       setSavingTaskId(null);
@@ -268,6 +284,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     deleteTaskDialogRef.current?.close();
     setTaskToDelete(null);
     setDeleteFailed(false);
+    setDeleteError(null);
     requestAnimationFrame(() => {
       const trigger = deleteTaskTriggerRef.current;
       if (trigger?.isConnected) trigger.focus();
@@ -279,6 +296,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     if (!taskToDelete || isDeleting) return;
     const task = taskToDelete;
     setDeleteFailed(false);
+    setDeleteError(null);
     setIsDeleting(true);
     try {
       await deleteTaskRequest(task.id);
@@ -288,7 +306,8 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
       if (editingTaskId === task.id) setEditingTaskId(null);
       closeDeleteDialog();
       addTaskButtonRef.current?.focus();
-    } catch {
+    } catch (failure: unknown) {
+      setDeleteError(getRequestError(failure));
       setDeleteFailed(true);
     } finally {
       setDeletingTaskId(null);
@@ -298,11 +317,13 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
 
   async function togglePin(task: Task) {
     setError(null);
+    setRequestError(null);
     setPinningTaskId(task.id);
     try {
       const updatedTask = await updateTaskRequest(task.id, { isPinned: !task.isPinned });
       setTasks((current) => current.map((item) => item.id === task.id ? updatedTask : item));
-    } catch {
+    } catch (failure: unknown) {
+      setRequestError(getRequestError(failure));
       setError("save");
     } finally {
       setPinningTaskId(null);
@@ -313,12 +334,14 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     if (task.status === nextStatus || movingTaskId) return;
 
     setError(null);
+    setRequestError(null);
     setMovingTaskId(task.id);
     try {
       const updatedTask = await updateTaskRequest(task.id, { status: nextStatus });
       await waitForTaskExit();
       setTasks((current) => current.map((item) => item.id === task.id ? updatedTask : item));
-    } catch {
+    } catch (failure: unknown) {
+      setRequestError(getRequestError(failure));
       setError("save");
     } finally {
       setMovingTaskId(null);
@@ -361,22 +384,23 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     const task = tasks.find((item) => item.id === active.id);
     if (!task) return;
     const move = calculateTaskMove(tasks, String(active.id), String(over.id));
-    if (!move) { setError("save"); return; }
+    if (!move) { setRequestError(null); setError("save"); return; }
     const { status: targetStatus, position } = move;
     if (activatorEvent instanceof KeyboardEvent) pendingDragFocus.current = task.id;
     setError(null);
+    setRequestError(null);
     setMovingTaskId(task.id);
     try {
       const updatedTask = await updateTaskRequest(task.id, { status: targetStatus, position });
       await waitForTaskExit();
       setTasks((current) => current.map((item) => item.id === task.id ? updatedTask : item));
-    } catch { setError("save"); } finally { setMovingTaskId(null); }
+    } catch (failure: unknown) { setRequestError(getRequestError(failure)); setError("save"); } finally { setMovingTaskId(null); }
   }
 
   const totalCount = tasks.length;
   const completedCount = tasks.filter((task) => task.status === "completed").length;
   const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
-  const errorMessage = error === "load" ? text.taskLoadError : error === "save" ? text.taskSaveError : error === "validation" ? text.taskTitleRequired : null;
+  const errorMessage = requestError ?? (error === "load" ? text.taskLoadError : error === "save" ? text.taskSaveError : error === "validation" ? text.taskTitleRequired : null);
   const priorityStyles: Record<TaskPriority, string> = {
     low: "bg-[#e6f0ff] text-[#23539a] dark:bg-[#1e2d46] dark:text-[#b7d2ff]",
     medium: "bg-[#fff0d6] text-[#8a5200] dark:bg-[#3a2c17] dark:text-[#f1ca7a]",
@@ -700,7 +724,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                               <button type="button" onClick={() => void togglePin(task)} aria-pressed={task.isPinned} disabled={Boolean(savingTaskId || deletingTaskId || pinningTaskId)} className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#719378] disabled:opacity-50 ${task.isPinned ? "bg-[#e8f0e7] text-[#285c38] hover:bg-[#deeadc] dark:bg-[#2b3d2f] dark:text-[#c2ddc6] dark:hover:bg-[#344a37]" : "text-[#657168] hover:bg-[#f0f4ef] dark:text-[#b7c2ba] dark:hover:bg-[#253128]"}`}>
                                 <Pin className={`size-3.5 ${task.isPinned ? "fill-current" : ""}`} aria-hidden="true" /> {task.isPinned ? text.unpinTask : text.pinTask}
                               </button>
-                              <button type="button" onClick={(event) => { deleteTaskTriggerRef.current = event.currentTarget; setTaskToDelete(task); }} disabled={Boolean(savingTaskId || isDeleting)} className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#9a6258] transition hover:bg-[#fff2ef] disabled:opacity-50 dark:text-[#e4aaa0] dark:hover:bg-[#2a1c19]">
+                              <button type="button" onClick={(event) => { deleteTaskTriggerRef.current = event.currentTarget; setDeleteError(null); setDeleteFailed(false); setTaskToDelete(task); }} disabled={Boolean(savingTaskId || isDeleting)} className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#9a6258] transition hover:bg-[#fff2ef] disabled:opacity-50 dark:text-[#e4aaa0] dark:hover:bg-[#2a1c19]">
                                 {deletingTaskId === task.id ? <LoaderCircle className="size-3.5 animate-spin" aria-hidden="true" /> : <Trash2 className="size-3.5" aria-hidden="true" />} {text.deleteTask}
                               </button>
                             </div>
@@ -749,7 +773,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
           </p>
           {deleteFailed && (
             <p role="alert" className="mt-4 rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-3 py-2 text-sm text-[#9a4539] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">
-              {text.taskDeleteError}
+              {deleteError ?? text.taskDeleteError}
             </p>
           )}
           <div className="mt-5 flex flex-col-reverse justify-end gap-2 sm:flex-row">
