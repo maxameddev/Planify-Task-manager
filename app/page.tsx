@@ -11,7 +11,7 @@ import { useLanguage } from "@/components/languageProvider";
 import { MobileAppPromo } from "@/components/mobileAppPromo";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { Briefcase, ChartNoAxesColumnIncreasing, GraduationCap, Laptop, ListChecks, LogIn, Play, ShieldCheck, UserRound, Users, Zap } from "lucide-react";
+import { Briefcase, ChartNoAxesColumnIncreasing, Check, GraduationCap, Laptop, ListChecks, LogIn, Play, ShieldCheck, UserRound, Users, Zap } from "lucide-react";
 import { LandingDashboardPreview } from "@/components/landingDashboardPreview";
 import { authClient } from "@/features/auth/client";
 
@@ -140,17 +140,26 @@ export default function Home() {
       </section>
 
       <section id="pricing" className="scroll-mt-24 px-5 pb-14 sm:px-6 lg:px-10 lg:pb-16">
-        <div className="relative mx-auto flex max-w-[1500px] flex-col items-start justify-between gap-6 overflow-hidden rounded-[1.75rem] border border-[#e3e9df] bg-[#eef3eb] px-7 py-8 dark:border-[#34443a] dark:bg-[#1a291e] sm:px-10 lg:flex-row lg:items-center lg:px-16 lg:py-7">
-          <span aria-hidden="true" className="absolute -bottom-20 -left-12 size-48 rounded-full bg-[#74ad7c]/45 blur-[1px]" />
-          <span aria-hidden="true" className="absolute -right-14 -top-24 size-52 rounded-full bg-[#c7dfbd]/70 dark:bg-[#31533a]/60" />
+        <div className="relative mx-auto grid max-w-[1500px] grid-cols-1 items-center gap-6 overflow-hidden rounded-[1.75rem] border border-[#e3e9df] bg-[#f0f4ed] px-6 py-7 dark:border-[#34443a] dark:bg-[#1a291e] sm:px-9 sm:py-8 lg:grid-cols-[minmax(0,1fr)_150px_auto] lg:gap-8 lg:px-12 lg:py-8 xl:px-16">
+          <span aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-12 size-52 rounded-full bg-[#74ad7c]/20 blur-[1px] dark:bg-[#31533a]/25" />
+          <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-[#c7dfbd]/35 dark:bg-[#31533a]/30" />
           <div className="relative z-10 max-w-2xl">
             <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">{text.pricingTitle}</h2>
             <p className="mt-2 text-base leading-6 text-[#626f65] dark:text-[#b4c0b7]">{text.pricingDescription}</p>
           </div>
+          <div aria-hidden="true" className="relative z-10 hidden h-[108px] w-[150px] place-self-center rounded-2xl border border-white/90 bg-white/75 p-3 shadow-[0_14px_32px_-24px_rgba(23,63,43,0.45)] dark:border-[#3b4c40] dark:bg-[#202e24] sm:block">
+            <div className="mb-3 flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-lg bg-[#e7f0e5] text-[#235d38] dark:bg-[#2d4433] dark:text-[#b5cfb8]"><ListChecks className="size-4" /></span>
+              <span className="h-2 w-14 rounded-full bg-[#dce5dc] dark:bg-[#405346]" />
+            </div>
+            <div className="space-y-2.5">
+              {[0, 1, 2].map((item) => <div key={item} className="flex items-center gap-2"><span className={`grid size-3.5 place-items-center rounded-full ${item === 0 ? "bg-[#4d8b5e] text-white" : "border border-[#c6d4c8] bg-white dark:border-[#657a69] dark:bg-[#1a291e]"}`}>{item === 0 && <Check className="size-2.5" />}</span><span className={`h-1.5 rounded-full ${item === 0 ? "w-20 bg-[#d5e1d5] dark:bg-[#405346]" : "w-24 bg-[#e6ebe5] dark:bg-[#34443a]"}`} /></div>)}
+            </div>
+          </div>
           {isPending ? (
-            <span aria-live="polite" aria-busy="true" className="relative z-10 inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white sm:text-base">{text.checkingSession}</span>
+            <span aria-live="polite" aria-busy="true" className="relative z-10 inline-flex h-12 w-fit shrink-0 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white sm:text-base">{text.checkingSession}</span>
           ) : (
-            <Link href={isSignedIn ? "/dashboard" : "/register"} className="relative z-10 inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-[#10482e] px-7 text-sm font-semibold text-white shadow-[0_10px_25px_-14px_rgba(16,72,46,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1b5c3a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:text-base">{isSignedIn ? text.viewMyTasks : text.pricingCta}<span aria-hidden="true" className="ml-2 text-lg">→</span></Link>
+            <Link href={isSignedIn ? "/dashboard" : "/register"} className="relative z-10 inline-flex h-12 w-fit shrink-0 items-center justify-center rounded-full bg-[#10482e] px-7 text-sm font-semibold text-white shadow-[0_10px_25px_-14px_rgba(16,72,46,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#1b5c3a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:text-base">{isSignedIn ? text.viewMyTasks : text.pricingCta}<span aria-hidden="true" className="ml-2 text-lg">→</span></Link>
           )}
         </div>
       </section>

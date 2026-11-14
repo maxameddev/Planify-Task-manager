@@ -77,10 +77,12 @@ export function MobileAppPromo({ text }: MobileAppPromoProps) {
                   </div>
                 ))}
               </div>
-              <div className="absolute inset-x-3 bottom-2 flex items-center justify-center gap-1.5 border-t border-[#e9ece7] pt-2 text-[7px] text-[#718078]">
-                <TrendingUp className="size-3 text-[#315d3c]" />{text.mobileIllustrationNote}
-              </div>
             </div>
+          </div>
+
+          <div className="absolute bottom-3 left-3 z-20 flex max-w-[38%] items-center gap-1.5 rounded-full border border-white/80 bg-white/90 px-2.5 py-1.5 text-[8px] text-[#59665d] shadow-sm dark:border-[#405346] dark:bg-[#19251d] dark:text-[#b4c0b7] sm:bottom-4 sm:left-5 sm:text-[9px]">
+            <TrendingUp className="size-3 shrink-0 text-[#315d3c] dark:text-[#a9d4a8]" />
+            <span className="truncate">{text.mobileIllustrationNote}</span>
           </div>
 
           <div className="absolute bottom-[2%] right-[3%] z-20 w-[42%] max-w-[190px] rounded-2xl border border-white/80 bg-white/95 p-2 shadow-[0_18px_40px_-22px_rgba(23,63,43,0.35)] dark:border-[#405346] dark:bg-[#19251d] sm:bottom-[20%] sm:right-[1%] sm:w-[22%] sm:p-3">
