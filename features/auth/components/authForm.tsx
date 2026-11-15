@@ -3,6 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { useLanguage } from "@/components/languageProvider";
 import { authClient } from "@/features/auth/client";
 import { getSignUpErrorMessage, validateSignUpField, validateSignUpFields, type SignUpField, type SignUpFieldErrors } from "@/features/auth/validation";
@@ -20,6 +21,7 @@ export function AuthForm({ mode, initialEmail }: AuthFormProps) {
   const router = useRouter();
   const isRegister = mode === "register";
   const [error, setError] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<SignUpFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -186,7 +188,18 @@ export function AuthForm({ mode, initialEmail }: AuthFormProps) {
             <label htmlFor="password" className="text-sm font-medium text-[#344139] dark:text-[#dce5de]">{text.password}</label>
             <span className="text-xs text-[#8a938b] dark:text-[#a3b0a7]">{text.passwordHint}</span>
           </div>
-          <input ref={passwordInputRef} id="password" name="password" type="password" autoComplete={isRegister ? "new-password" : "current-password"} required minLength={isRegister ? 12 : undefined} maxLength={128} aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? "password-error" : undefined} onChange={(event) => isRegister ? updateSignUpField("password", event.currentTarget.value) : updateLoginField("password", event.currentTarget.value)} placeholder="••••••••••••" className={fieldClassName("password")} />
+          <div className="relative">
+            <input ref={passwordInputRef} id="password" name="password" type={isPasswordVisible ? "text" : "password"} autoComplete={isRegister ? "new-password" : "current-password"} required minLength={isRegister ? 12 : undefined} maxLength={128} aria-invalid={Boolean(fieldErrors.password)} aria-describedby={fieldErrors.password ? "password-error" : undefined} onChange={(event) => isRegister ? updateSignUpField("password", event.currentTarget.value) : updateLoginField("password", event.currentTarget.value)} placeholder="••••••••••••" className={`${fieldClassName("password")} pr-12`} />
+            <button
+              type="button"
+              onClick={() => setIsPasswordVisible((visible) => !visible)}
+              aria-label={isPasswordVisible ? text.hidePassword : text.showPassword}
+              aria-pressed={isPasswordVisible}
+              className="absolute inset-y-0 right-3 flex items-center justify-center rounded-md px-1 text-[#768078] transition hover:text-[#315d3c] focus:outline-none focus:ring-2 focus:ring-[#6d9275]/40 dark:text-[#a3b0a7] dark:hover:text-[#a6c5a9]"
+            >
+              {isPasswordVisible ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
+            </button>
+          </div>
           {fieldErrors.password && <p id="password-error" className="mt-1.5 text-xs font-medium text-[#a34d43] dark:text-[#efaaa1]">{fieldErrors.password}</p>}
         </div>
         {error && <p role="alert" className="rounded-xl bg-[#fff0ee] px-4 py-3 text-sm text-[#a23c30] dark:bg-[#3b2724] dark:text-[#ffb4a8]">{error}</p>}
