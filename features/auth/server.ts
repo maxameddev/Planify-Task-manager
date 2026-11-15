@@ -3,16 +3,14 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
-import { emailOTP } from "better-auth/plugins";
 import { mongoDb } from "@/lib/mongodb";
-import { sendVerificationEmail } from "@/features/auth/verificationEmail";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-const requireEmailVerification = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "production";
 const configuredAuthBaseURL = process.env.BETTER_AUTH_URL?.trim();
 const authBaseURL = configuredAuthBaseURL ?? (
-  requireEmailVerification ? undefined : "http://localhost:3000"
+  isProduction ? undefined : "http://localhost:3000"
 );
 
 if (!authBaseURL) {
@@ -20,7 +18,7 @@ if (!authBaseURL) {
 }
 
 const parsedAuthBaseURL = new URL(authBaseURL);
-if (requireEmailVerification && (parsedAuthBaseURL.protocol !== "https:" || parsedAuthBaseURL.hostname === "localhost")) {
+if (isProduction && (parsedAuthBaseURL.protocol !== "https:" || parsedAuthBaseURL.hostname === "localhost")) {
   throw new Error("BETTER_AUTH_URL must be the public HTTPS URL of the production app.");
 }
 
@@ -39,13 +37,8 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification,
     minPasswordLength: 12,
     maxPasswordLength: 128,
-  },
-  emailVerification: {
-    sendOnSignUp: false,
-    autoSignInAfterVerification: true,
   },
   socialProviders: googleClientId && googleClientSecret
     ? {
@@ -126,14 +119,4 @@ export const auth = betterAuth({
       }
     }),
   },
-  plugins: [
-    emailOTP({
-      otpLength: 6,
-      expiresIn: 10 * 60,
-      allowedAttempts: 5,
-      storeOTP: "hashed",
-      sendVerificationOnSignUp: false,
-      sendVerificationOTP: ({ email, otp }) => sendVerificationEmail(email, otp),
-    }),
-  ],
 });

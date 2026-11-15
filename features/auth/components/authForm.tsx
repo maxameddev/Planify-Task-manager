@@ -118,19 +118,7 @@ export function AuthForm({ mode, initialEmail }: AuthFormProps) {
         return;
       }
 
-      if (isRegister && !result.data?.token) {
-        const mailResult = await fetch("/api/email-verification/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-        if (!mailResult.ok) {
-          router.push(`/verify-email?email=${encodeURIComponent(email)}&sendError=1`);
-          return;
-        }
-      }
-
-      router.push(isRegister && !result.data?.token ? `/verify-email?email=${encodeURIComponent(email)}` : "/dashboard");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       setError(isRegister ? text.registerError : text.authError);
