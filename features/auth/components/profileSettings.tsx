@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Check, LoaderCircle, Mail, Phone, UserRound, X } from "lucide-react";
+import { ArrowLeft, Camera, Check, LoaderCircle, Mail, Phone, Trash2, UserRound, X } from "lucide-react";
 import { BrandLogo } from "@/components/brandLogo";
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
@@ -30,8 +30,18 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
   const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [isRemovePhotoDialogOpen, setIsRemovePhotoDialogOpen] = useState(false);
 
   const hasChanges = name.trim() !== savedProfile.name || phoneNumber.trim() !== savedProfile.phoneNumber || image !== savedProfile.image;
+
+  useEffect(() => {
+    if (!isRemovePhotoDialogOpen) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsRemovePhotoDialogOpen(false);
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isRemovePhotoDialogOpen]);
 
   async function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -103,6 +113,12 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
     }
   }
 
+  function removePhoto() {
+    setImage(null);
+    setSaved(false);
+    setIsRemovePhotoDialogOpen(false);
+  }
+
   return (
     <main data-language-content className="min-h-screen bg-[#f8f8f5] text-[#18211c] dark:bg-[#111914] dark:text-[#e8eee9]">
       <header className="border-b border-[#e9ece7] bg-white/80 dark:border-[#2d3a31] dark:bg-[#18221b]/90">
@@ -140,7 +156,7 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
                     <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handleImageChange(event)} disabled={isPreparingImage} className="sr-only" />
                   </label>
                   {image && (
-                    <button type="button" onClick={() => { if (window.confirm(text.confirmRemovePhoto)) { setImage(null); setSaved(false); } }} className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-[#8c5a50] outline-none transition hover:bg-[#fff2ef] focus-visible:ring-2 focus-visible:ring-[#c27d70] dark:text-[#e4aaa0] dark:hover:bg-[#2a1c19]">
+                    <button type="button" onClick={() => setIsRemovePhotoDialogOpen(true)} className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-[#8c5a50] outline-none transition hover:bg-[#fff2ef] focus-visible:ring-2 focus-visible:ring-[#c27d70] dark:text-[#e4aaa0] dark:hover:bg-[#2a1c19]">
                       <X className="size-4" aria-hidden="true" />{text.removePhoto}
                     </button>
                   )}
@@ -176,6 +192,19 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
           </form>
         </div>
       </section>
+      {isRemovePhotoDialogOpen && (
+        <div className="fixed inset-0 z-[200] grid place-items-center bg-[#101812]/55 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setIsRemovePhotoDialogOpen(false); }}>
+          <section role="alertdialog" aria-modal="true" aria-labelledby="remove-photo-title" aria-describedby="remove-photo-description" className="w-full max-w-md rounded-2xl border border-[#e5eae3] bg-white p-6 shadow-2xl shadow-black/20 dark:border-[#3a4b3e] dark:bg-[#1b271f]">
+            <div className="grid size-11 place-items-center rounded-full bg-[#fff2ef] text-[#9a5548] dark:bg-[#392522] dark:text-[#e4aaa0]"><Trash2 className="size-5" aria-hidden="true" /></div>
+            <h2 id="remove-photo-title" className="mt-4 text-lg font-semibold text-[#25342a] dark:text-[#e8eee9]">{text.removePhoto}</h2>
+            <p id="remove-photo-description" className="mt-2 text-sm leading-6 text-[#768078] dark:text-[#b4c0b7]">{text.confirmRemovePhoto}</p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button type="button" autoFocus onClick={() => setIsRemovePhotoDialogOpen(false)} className="h-10 rounded-xl border border-[#dfe5de] px-4 text-sm font-semibold text-[#526056] outline-none hover:bg-[#f4f6f2] focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:text-[#d3ddd5] dark:hover:bg-[#253128]">{text.cancel}</button>
+              <button type="button" onClick={removePhoto} className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#a34f42] px-4 text-sm font-semibold text-white outline-none hover:bg-[#8f4035] focus-visible:ring-2 focus-visible:ring-[#c27d70] focus-visible:ring-offset-2"><Trash2 className="size-4" aria-hidden="true" />{text.removePhoto}</button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
