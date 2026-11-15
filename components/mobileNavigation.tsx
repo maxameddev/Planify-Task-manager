@@ -6,8 +6,9 @@ import { Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
 import { useLanguage } from "@/components/languageProvider";
+import { ProfileAvatar } from "@/components/profileAvatar";
 
-export function MobileNavigation({ isSignedIn, isPending, userName, userEmail }: { isSignedIn: boolean; isPending: boolean; userName?: string | null; userEmail?: string | null }) {
+export function MobileNavigation({ isSignedIn, isPending, userName, userEmail, userImage }: { isSignedIn: boolean; isPending: boolean; userName?: string | null; userEmail?: string | null; userImage?: string | null }) {
   const { text } = useLanguage();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -57,7 +58,7 @@ export function MobileNavigation({ isSignedIn, isPending, userName, userEmail }:
             {isPending ? <span aria-live="polite" aria-busy="true" className="flex min-h-11 items-center justify-center text-sm text-[#657168] dark:text-[#b4c0b7]">{text.checkingSession}</span> : isSignedIn ? (
               <>
                 <div className="mb-3 flex min-w-0 items-center gap-3 px-1 py-1">
-                  <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-[#e8f0e7] text-sm font-bold text-[#285c38] dark:bg-[#2b3d2f] dark:text-[#c2ddc6]">{displayName.slice(0, 1).toLocaleUpperCase()}</span>
+                  <ProfileAvatar key={userImage || "initial"} image={userImage} name={userName} email={userEmail} className="size-10" />
                   <span className="min-w-0"><span className="block truncate text-sm font-semibold text-[#26352b] dark:text-[#e0e9e2]">{displayName}</span>{userEmail && <span className="block truncate text-xs text-[#657168] dark:text-[#b4c0b7]">{userEmail}</span>}</span>
                 </div>
                 <Link href="/dashboard" onClick={() => setOpen(false)} className="flex min-h-11 items-center justify-center rounded-full bg-[#173f2b] px-5 text-sm font-semibold text-white outline-none transition-colors hover:bg-[#24583b] focus-visible:ring-2 focus-visible:ring-[#719378]">{text.goToDashboard}<span aria-hidden="true" className="ml-2">→</span></Link>

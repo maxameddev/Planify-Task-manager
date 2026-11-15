@@ -2,6 +2,7 @@
 
 import { HeroHeadline } from "@/components/heroHeadline";
 import { MobileNavigation } from "@/components/mobileNavigation";
+import { ProfileAvatar } from "@/components/profileAvatar";
 
 import Link from "next/link";
 import { BrandLogo } from "@/components/brandLogo";
@@ -62,8 +63,9 @@ export default function Home() {
           {isPending ? (
             <span aria-live="polite" aria-busy="true" className="rounded-full bg-[#173f2b]/70 px-3.5 py-2.5 text-xs font-semibold text-white sm:px-5 sm:text-sm">{text.checkingSession}</span>
           ) : isSignedIn ? (
-            <Link href="/dashboard" aria-label={text.goToDashboard} className="rounded-full bg-[#173f2b] px-3.5 py-2.5 text-xs font-semibold text-white transition hover:bg-[#24583b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:px-5 sm:text-sm">
-              <span className="hidden sm:inline">{text.goToDashboard}</span><span className="sm:hidden">{text.viewMyTasks}</span><span aria-hidden="true" className="ml-1">→</span>
+            <Link href="/dashboard" aria-label={text.goToDashboard} className="inline-flex items-center gap-2 rounded-full bg-[#173f2b] py-1.5 pl-1.5 pr-4 text-xs font-semibold text-white transition hover:bg-[#24583b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 sm:text-sm">
+              <ProfileAvatar key={session?.user?.image || "initial"} image={session?.user?.image} name={session?.user?.name} email={session?.user?.email} className="size-8" />
+              <span>{text.goToDashboard}</span><span aria-hidden="true">→</span>
             </Link>
           ) : (
             <>
@@ -76,10 +78,10 @@ export default function Home() {
             </>
           )}
         </nav>
-        <MobileNavigation isSignedIn={isSignedIn} isPending={isPending} userName={session?.user?.name} userEmail={session?.user?.email} />
+        <MobileNavigation isSignedIn={isSignedIn} isPending={isPending} userName={session?.user?.name} userEmail={session?.user?.email} userImage={session?.user?.image} />
       </header>
 
-      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-12 pt-10 sm:px-8 sm:pt-14 lg:min-h-[480px] lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-5 lg:pt-4 xl:min-h-[510px] xl:gap-5 2xl:min-h-[530px] 2xl:px-10">
+      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-12 pt-10 sm:px-8 sm:pt-14 lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-2 lg:pt-3 xl:gap-5 2xl:px-10">
         <div className="relative z-10 max-w-[700px]">
           <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d7e1d9] bg-white/75 px-4 py-2.5 text-xs font-semibold text-[#173f2b] shadow-sm dark:border-[#34443a] dark:bg-[#18221b]/80 dark:text-[#b5cfb8] sm:text-sm">
             <span className="size-2.5 rounded-full bg-[#17984d] shadow-[0_0_0_3px_rgba(23,152,77,0.12)]" />{text.heroEyebrow}
@@ -102,7 +104,7 @@ export default function Home() {
         <div className="relative z-0 py-3 lg:py-0"><LandingDashboardPreview text={text} /></div>
       </section>
 
-      <section aria-label={text.trustOrganizeTitle} className="mx-auto grid w-full max-w-[1500px] gap-6 px-6 pb-14 pt-4 sm:grid-cols-2 lg:-mt-10 lg:grid-cols-4 lg:gap-0 lg:px-8 lg:py-6 2xl:px-10">
+      <section aria-label={text.trustOrganizeTitle} className="mx-auto grid w-full max-w-[1500px] gap-6 px-6 pb-14 pt-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:px-8 lg:py-4 2xl:px-10">
         {[
           { icon: Users, title: text.trustOrganizeTitle, detail: text.trustOrganizeBody },
           { icon: ChartNoAxesColumnIncreasing, title: text.trustProgressTitle, detail: text.trustProgressBody },

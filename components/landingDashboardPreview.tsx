@@ -44,7 +44,7 @@ export function LandingDashboardPreview({ text }: LandingDashboardPreviewProps) 
       <div aria-hidden="true" className="absolute -inset-x-3 inset-y-5 -z-10 rotate-[-8deg] rounded-[3rem] bg-gradient-to-br from-[#a6dcac] via-[#72bd83] to-[#39935d] opacity-90 sm:-inset-x-6 sm:inset-y-8" />
       <div aria-hidden="true" className="absolute -bottom-5 left-1/3 -z-10 size-24 rounded-full bg-[#72bd83]/30 blur-2xl sm:size-36" />
       <div className="overflow-hidden rounded-[1.45rem] border-[5px] border-white/90 bg-white shadow-[0_30px_90px_-36px_rgba(14,58,34,0.48)] ring-1 ring-[#174c31]/10 transition-transform duration-500 ease-out motion-safe:hover:-translate-y-1 motion-reduce:transition-none dark:border-[#26382d] dark:bg-[#16221a] dark:ring-white/10 sm:rounded-[1.8rem] sm:border-[7px]">
-        <div aria-hidden="true" className="grid min-h-[360px] grid-cols-[48px_minmax(0,1fr)] sm:min-h-[400px] sm:grid-cols-[132px_minmax(0,1fr)] lg:min-h-[clamp(360px,34vw,460px)] lg:grid-cols-[130px_minmax(0,1fr)] xl:grid-cols-[150px_minmax(0,1fr)]">
+        <div aria-hidden="true" className="grid min-h-[360px] grid-cols-[48px_minmax(0,1fr)] sm:min-h-[400px] sm:grid-cols-[132px_minmax(0,1fr)] lg:min-h-[clamp(350px,29vw,410px)] lg:grid-cols-[130px_minmax(0,1fr)] xl:grid-cols-[150px_minmax(0,1fr)]">
           <aside className="flex flex-col bg-gradient-to-b from-[#0c3a29] to-[#082f22] px-1.5 py-3 text-white sm:px-3 sm:py-4">
             <div className="mb-5 flex items-center justify-center gap-2 sm:mb-7 sm:justify-start">
               <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white/10 ring-1 ring-white/15">

@@ -10,10 +10,23 @@ import { sendVerificationEmail } from "@/features/auth/verificationEmail";
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const requireEmailVerification = process.env.NODE_ENV === "production";
+const configuredAuthBaseURL = process.env.BETTER_AUTH_URL?.trim();
+const authBaseURL = configuredAuthBaseURL ?? (
+  requireEmailVerification ? undefined : "http://localhost:3000"
+);
+
+if (!authBaseURL) {
+  throw new Error("BETTER_AUTH_URL must be set in production (for example, https://your-app.vercel.app).");
+}
+
+const parsedAuthBaseURL = new URL(authBaseURL);
+if (requireEmailVerification && (parsedAuthBaseURL.protocol !== "https:" || parsedAuthBaseURL.hostname === "localhost")) {
+  throw new Error("BETTER_AUTH_URL must be the public HTTPS URL of the production app.");
+}
 
 export const auth = betterAuth({
   appName: "Planify",
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  baseURL: authBaseURL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: mongodbAdapter(mongoDb),
   user: {
