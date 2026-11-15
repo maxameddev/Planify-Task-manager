@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongoose";
-import { getAuthenticatedUserId } from "@/features/auth/apiAuth";
+import { getAuthenticatedUserId } from "@/features/auth/api/getAuthenticatedUserId";
 import { TaskModel } from "@/features/tasks/model";
 import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, serializeTask, taskErrorResponse, type TaskPriority, type TaskStatus } from "@/features/tasks/contracts";
 
