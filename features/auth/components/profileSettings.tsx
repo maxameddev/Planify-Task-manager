@@ -140,7 +140,7 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
                     <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void handleImageChange(event)} disabled={isPreparingImage} className="sr-only" />
                   </label>
                   {image && (
-                    <button type="button" onClick={() => { setImage(null); setSaved(false); }} className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-[#8c5a50] outline-none transition hover:bg-[#fff2ef] focus-visible:ring-2 focus-visible:ring-[#c27d70] dark:text-[#e4aaa0] dark:hover:bg-[#2a1c19]">
+                    <button type="button" onClick={() => { if (window.confirm(text.confirmRemovePhoto)) { setImage(null); setSaved(false); } }} className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm font-medium text-[#8c5a50] outline-none transition hover:bg-[#fff2ef] focus-visible:ring-2 focus-visible:ring-[#c27d70] dark:text-[#e4aaa0] dark:hover:bg-[#2a1c19]">
                       <X className="size-4" aria-hidden="true" />{text.removePhoto}
                     </button>
                   )}

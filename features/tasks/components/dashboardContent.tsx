@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, Circle, Flag, Grip, LoaderCircle, LogOut, MoreHorizontal, Pencil, Pin, Plus, Trash2, UserRound, X } from "lucide-react";
 import { Menu } from "@base-ui/react/menu";
 import { BrandLogo } from "@/components/brandLogo";
+import { ProfileAvatar } from "@/components/profileAvatar";
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
 import { useLanguage } from "@/components/languageProvider";
@@ -431,9 +431,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                 disabled={isSigningOut}
                 className="inline-flex h-10 min-w-0 items-center gap-2 rounded-full border border-[#dfe5de] bg-white/70 px-2.5 text-sm font-semibold text-[#425047] outline-none transition hover:bg-[#f4f6f2] focus-visible:ring-2 focus-visible:ring-[#719378] disabled:opacity-60 dark:border-[#34443a] dark:bg-[#1a251e] dark:text-[#d3ddd5] dark:hover:bg-[#253128]"
               >
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#e8f0e7] text-xs font-bold text-[#285c38] dark:bg-[#2b3d2f] dark:text-[#c2ddc6]">
-                  {userName.trim().slice(0, 1).toLocaleUpperCase()}
-                </span>
+                <ProfileAvatar key={userImage || "initial"} image={userImage} name={userName} email={userEmail} className="size-7" />
                 <span className="hidden max-w-32 truncate sm:inline">{userName}</span>
                 <ChevronDown className="hidden size-4 shrink-0 text-[#819087] sm:block" aria-hidden="true" />
               </Menu.Trigger>
@@ -441,9 +439,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                 <Menu.Positioner side="bottom" align="end" sideOffset={8} collisionPadding={12} className="z-[120] outline-none">
                   <Menu.Popup className="planify-popup w-64 max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[#dfe5de] bg-white p-2 text-[#344239] shadow-xl shadow-[#153521]/15 outline-none dark:border-[#3a4b3e] dark:bg-[#1b271f] dark:text-[#e2eae4]">
                     <div role="group" aria-label={text.signedInAs} className="flex items-center gap-3 px-2.5 py-2.5">
-                      <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-[#e8f0e7] text-sm font-bold text-[#285c38] dark:bg-[#2b3d2f] dark:text-[#c2ddc6]">
-                        {userImage ? <Image src={userImage} alt="" width={320} height={320} unoptimized className="size-full object-cover" /> : userName.trim().slice(0, 1).toLocaleUpperCase()}
-                      </span>
+                      <ProfileAvatar key={userImage || "initial-menu"} image={userImage} name={userName} email={userEmail} className="size-10 text-sm" />
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-semibold text-[#26342a] dark:text-[#e2eae4]">{userName}</span>
                         <span className="block truncate text-xs text-[#7a857d] dark:text-[#aebbb1]">{userEmail}</span>
