@@ -2,6 +2,7 @@
 
 import { HeroHeadline } from "@/components/heroHeadline";
 import { MobileNavigation } from "@/components/mobileNavigation";
+import { MobileHeroPreview } from "@/components/mobileHeroPreview";
 import { ProfileAvatar } from "@/components/profileAvatar";
 
 import Link from "next/link";
@@ -81,14 +82,15 @@ export default function Home() {
         <MobileNavigation isSignedIn={isSignedIn} isPending={isPending} userName={session?.user?.name} userEmail={session?.user?.email} userImage={session?.user?.image} />
       </header>
 
-      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-12 pt-10 sm:px-8 sm:pt-14 lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-2 lg:pt-3 xl:gap-5 2xl:px-10">
-        <div className="relative z-10 max-w-[700px]">
+      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-12 pt-7 sm:px-8 sm:pt-14 lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-2 lg:pt-3 xl:gap-5 2xl:px-10">
+        <div className="relative z-10 max-w-[700px] text-center sm:text-left">
           <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d7e1d9] bg-white/75 px-4 py-2.5 text-xs font-semibold text-[#173f2b] shadow-sm dark:border-[#34443a] dark:bg-[#18221b]/80 dark:text-[#b5cfb8] sm:text-sm">
             <span className="size-2.5 rounded-full bg-[#17984d] shadow-[0_0_0_3px_rgba(23,152,77,0.12)]" />{text.heroEyebrow}
           </p>
           <HeroHeadline lead={text.headlineLead} middle={text.headlineMiddle} accent={text.headlineAccent} />
           <p className="mt-5 max-w-[630px] text-base leading-7 text-[#525d55] dark:text-[#b4c0b7] xl:mt-6 xl:text-lg xl:leading-8">{text.heroDescription}</p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center xl:mt-7">
+          <MobileHeroPreview text={text} />
+          <div className="mt-3 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-center xl:mt-7">
             {isPending ? (
               <span aria-live="polite" aria-busy="true" className="inline-flex h-12 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white xl:h-14 xl:px-8 xl:text-base">{text.checkingSession}</span>
             ) : (
@@ -101,7 +103,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-        <div className="relative z-0 py-3 lg:py-0"><LandingDashboardPreview text={text} /></div>
+        <div className="relative z-0 hidden py-3 sm:block lg:py-0"><LandingDashboardPreview text={text} /></div>
       </section>
 
       <section aria-label={text.trustOrganizeTitle} className="mx-auto grid w-full max-w-[1500px] gap-6 px-6 pb-14 pt-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-0 lg:px-8 lg:py-4 2xl:px-10">
