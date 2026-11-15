@@ -10,9 +10,6 @@ declare global {
 }
 
 export const mongoClient = globalThis.planifyMongoClient ?? new MongoClient(uri);
-
-if (process.env.NODE_ENV !== "production") {
-  globalThis.planifyMongoClient = mongoClient;
-}
+globalThis.planifyMongoClient = mongoClient;
 
 export const mongoDb = mongoClient.db(databaseName);
