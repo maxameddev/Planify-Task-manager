@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CalendarDays, Check, ChevronDown, Circle, Flag, Grip, LoaderCircle, LogOut, MoreHorizontal, Pencil, Pin, Plus, Trash2, UserRound, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, Circle, CircleCheck, CircleDashed, CircleDot, Flag, Grip, LoaderCircle, LogOut, MoreHorizontal, Pencil, Pin, Plus, Trash2, UserRound, X } from "lucide-react";
 import { Menu } from "@base-ui/react/menu";
 import { BrandLogo } from "@/components/brandLogo";
 import { ProfileAvatar } from "@/components/profileAvatar";
@@ -596,10 +596,10 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
               .sort((left, right) => Number(right.isPinned) - Number(left.isPinned) || left.position - right.position);
             return (
               <TaskColumn key={column.status} id={column.status} label={`${text.tasksFor}${column.title}`}>
-                <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 rounded-t-2xl bg-[#e7eee1] px-4 py-3 dark:bg-[#202b22] sm:-mx-5 sm:-mt-5 sm:px-5">
-                  <span className={`size-3 rounded-full ${column.color}`} />
-                  <h2 className="text-sm font-semibold tracking-[-0.01em]">{column.title}</h2>
-                  <span className="ml-auto grid size-7 place-items-center rounded-full bg-[#f1f4ef] text-xs font-medium text-[#68766c] dark:bg-[#253128] dark:text-[#b7c2ba]">{columnTasks.length}</span>
+                <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 rounded-t-2xl border-b border-[#b8cdb6] bg-[#d3e2ce] px-4 py-3 dark:border-[#405546] dark:bg-[#25382a] sm:-mx-5 sm:-mt-5 sm:px-5">
+                  {column.status === "todo" ? <CircleDot className="size-5 text-[#326a42] dark:text-[#a6c5a9]" aria-hidden="true" /> : column.status === "in_progress" ? <CircleDashed className="size-5 text-[#326a42] dark:text-[#a6c5a9]" aria-hidden="true" /> : <CircleCheck className="size-5 text-[#326a42] dark:text-[#a6c5a9]" aria-hidden="true" />}
+                  <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#173f2b] dark:text-[#e2eae4]">{column.title}</h2>
+                  <span className="ml-auto grid size-7 place-items-center rounded-full bg-[#b9d0b3] text-xs font-semibold text-[#244c30] dark:bg-[#344a37] dark:text-[#d6ead9]">{columnTasks.length}</span>
                 </div>
 
                 {isLoading ? (
@@ -656,9 +656,9 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                             <div className="flex items-start gap-2.5 pl-7">
                               {task.status === "completed" ? <Check className="mt-0.5 size-4 shrink-0 text-[#4e8d5b]" aria-label={column.title} /> : <Circle className="mt-0.5 size-4 shrink-0 text-[#9eae9f]" aria-hidden="true" />}
                               <div className="min-w-0 flex-1 pr-8">
-                                <h3 className={`break-words text-sm font-semibold leading-5 ${task.status === "completed" ? "text-[#829087] line-through dark:text-[#849187]" : "text-[#26342a] dark:text-[#e2eae4]"}`}>{task.title}</h3>
+                                <h3 className={`break-words text-sm font-semibold leading-5 ${task.status === "completed" ? "text-[#53695a] line-through dark:text-[#adbbb0]" : "text-[#1d3023] dark:text-[#e2eae4]"}`}>{task.title}</h3>
                                 {task.isPinned && <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#e8f0e7] px-2 py-0.5 text-[10px] font-semibold text-[#285c38] dark:bg-[#2b3d2f] dark:text-[#c2ddc6]"><Pin className="size-3 fill-current" aria-hidden="true" />{text.pinned}</span>}
-                                {task.description && <p className="mt-1.5 whitespace-pre-wrap break-words text-xs leading-5 text-[#7c887f] dark:text-[#aebbb1]">{task.description}</p>}
+                                {task.description && <p className="mt-1.5 whitespace-pre-wrap break-words text-xs leading-5 text-[#56675b] dark:text-[#becbc1]">{task.description}</p>}
                               </div>
                               <Menu.Root>
                                 <Menu.Trigger
