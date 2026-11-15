@@ -195,7 +195,7 @@ export function AuthForm({ mode, initialEmail }: AuthFormProps) {
               onClick={() => setIsPasswordVisible((visible) => !visible)}
               aria-label={isPasswordVisible ? text.hidePassword : text.showPassword}
               aria-pressed={isPasswordVisible}
-              className="absolute inset-y-0 right-3 flex items-center justify-center rounded-md px-1 text-[#768078] transition hover:text-[#315d3c] focus:outline-none focus:ring-2 focus:ring-[#6d9275]/40 dark:text-[#a3b0a7] dark:hover:text-[#a6c5a9]"
+              className="absolute inset-y-0 right-3 flex items-center justify-center rounded-md px-1 text-[#768078] transition hover:text-[#315d3c] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#6d9275]/40 dark:text-[#a3b0a7] dark:hover:text-[#a6c5a9]"
             >
               {isPasswordVisible ? <EyeOff aria-hidden="true" size={20} /> : <Eye aria-hidden="true" size={20} />}
             </button>
