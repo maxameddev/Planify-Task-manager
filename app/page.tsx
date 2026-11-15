@@ -3,6 +3,7 @@
 import { HeroHeadline } from "@/components/heroHeadline";
 import { MobileNavigation } from "@/components/mobileNavigation";
 import { MobileHeroPreview } from "@/components/mobileHeroPreview";
+import { AudienceCarousel } from "@/components/audienceCarousel";
 import { ProfileAvatar } from "@/components/profileAvatar";
 
 import Link from "next/link";
@@ -32,10 +33,10 @@ export default function Home() {
     { name: text.testimonialNameThree, role: text.testimonialRoleThree, quote: text.testimonialQuoteThree, photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=160&h=160&q=85" },
   ];
   const audiences = [
-    { kind: "manager", icon: Briefcase, title: text.audienceManagerTitle, description: text.audienceManagerBody, image: "https://images.unsplash.com/photo-1758598306493-99e22e718e08?auto=format&fit=crop&w=1200&h=675&q=85" },
-    { kind: "student", icon: GraduationCap, title: text.audienceStudentTitle, description: text.audienceStudentBody, image: "https://images.unsplash.com/photo-1758685848895-e724272475d2?auto=format&fit=crop&w=1200&h=675&q=85" },
-    { kind: "professional", icon: Laptop, title: text.audienceProfessionalTitle, description: text.audienceProfessionalBody, image: "https://images.unsplash.com/photo-1758611970983-ff9f0ec0b0c0?auto=format&fit=crop&w=1200&h=675&q=85" },
-    { kind: "team", icon: Users, title: text.audienceTeamTitle, description: text.audienceTeamBody, image: "https://images.unsplash.com/photo-1758873268745-dd2cf0d677b5?auto=format&fit=crop&w=1200&h=675&q=85" },
+    { kind: "manager", name: "Sarah", icon: Briefcase, title: text.audienceManagerTitle, description: text.audienceManagerBody, image: "/images/audience/managers.webp" },
+    { kind: "student", name: "Daniel", icon: GraduationCap, title: text.audienceStudentTitle, description: text.audienceStudentBody, image: "/images/audience/students.webp" },
+    { kind: "professional", name: "Emma", icon: Laptop, title: text.audienceProfessionalTitle, description: text.audienceProfessionalBody, image: "/images/audience/freelancers.webp" },
+    { kind: "team", name: "Alex, Maya & James", icon: Users, title: text.audienceTeamTitle, description: text.audienceTeamBody, image: "/images/audience/teams.webp" },
   ] as const;
 
   return (
@@ -87,10 +88,10 @@ export default function Home() {
           <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d7e1d9] bg-white/75 px-4 py-2.5 text-xs font-semibold text-[#173f2b] shadow-sm dark:border-[#34443a] dark:bg-[#18221b]/80 dark:text-[#b5cfb8] sm:text-sm">
             <span className="size-2.5 rounded-full bg-[#17984d] shadow-[0_0_0_3px_rgba(23,152,77,0.12)]" />{text.heroEyebrow}
           </p>
-          <HeroHeadline lead={text.headlineLead} middle={text.headlineMiddle} accent={text.headlineAccent} />
+          <h1 className="mx-auto max-w-[360px] text-balance text-[clamp(2.2rem,9.7vw,3.4rem)] font-bold leading-[1.03] tracking-[-0.055em] sm:hidden">{text.headlineLead === "Your workspace should" ? <><span className="block">Your workspace</span><span className="block">should {text.headlineMiddle}</span></> : <span className="block">{text.headlineLead} {text.headlineMiddle}</span>} <span className="relative inline-block text-[#25613c] dark:text-[#a6c5a9]">{text.headlineAccent}<span aria-hidden="true" className="absolute -bottom-2 left-[25%] h-2 w-[70%] rounded-[50%] border-t-[4px] border-[#93cba0]" /></span></h1>
+          <div className="hidden sm:block"><HeroHeadline lead={text.headlineLead} middle={text.headlineMiddle} accent={text.headlineAccent} /></div>
           <p className="mt-5 max-w-[630px] text-base leading-7 text-[#525d55] dark:text-[#b4c0b7] xl:mt-6 xl:text-lg xl:leading-8">{text.heroDescription}</p>
-          <MobileHeroPreview text={text} />
-          <div className="mt-3 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-center xl:mt-7">
+          <div className="mx-auto mt-6 flex max-w-[340px] flex-col gap-3 sm:mx-0 sm:max-w-none sm:flex-row sm:items-center xl:mt-7">
             {isPending ? (
               <span aria-live="polite" aria-busy="true" className="inline-flex h-12 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white xl:h-14 xl:px-8 xl:text-base">{text.checkingSession}</span>
             ) : (
@@ -102,6 +103,7 @@ export default function Home() {
               <Play className="mr-2 size-5 fill-current" aria-hidden="true" />{text.heroSecondary}
             </a>
           </div>
+          <MobileHeroPreview text={text} />
         </div>
         <div className="relative z-0 hidden py-3 sm:block lg:py-0"><LandingDashboardPreview text={text} /></div>
       </section>
@@ -174,12 +176,13 @@ export default function Home() {
             <h2 className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{text.audienceTitle}</h2>
             <p className="mt-3 text-sm leading-6 text-[#626f65] dark:text-[#b4c0b7]">{text.audienceDescription}</p>
           </div>
-          <div className="grid auto-rows-fr items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-4 xl:gap-4 2xl:gap-5">
-            {audiences.map(({ kind, icon: Icon, title, description, image }) => (
-              <Card key={kind} className="h-full min-h-[390px] gap-0 rounded-3xl border-[#e3e9e2] bg-white py-0 shadow-sm ring-0 transition-shadow duration-300 hover:shadow-[0_18px_45px_-32px_rgba(23,63,43,0.35)] dark:border-[#2d3a31] dark:bg-[#1a251e]">
+          <AudienceCarousel count={audiences.length}>
+            {audiences.map(({ kind, name, icon: Icon, title, description, image }) => (
+              <Card key={kind} className="min-h-[340px] w-full shrink-0 snap-start gap-0 rounded-3xl border-[#e3e9e2] bg-white py-0 shadow-sm ring-0 transition-shadow duration-300 hover:shadow-[0_18px_45px_-32px_rgba(23,63,43,0.35)] dark:border-[#2d3a31] dark:bg-[#1a251e] sm:h-full sm:min-h-[390px]">
                 <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden rounded-t-3xl bg-[#e8eee8]">
                   <Image src={image} alt={title} fill unoptimized sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, 25vw" className="object-cover object-center brightness-[0.94] saturate-[0.88] transition-transform duration-500 hover:scale-[1.03]" />
                   <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[#173f2b]/10 via-transparent to-[#f1dfbf]/10" />
+                  <span className="absolute bottom-3 left-3 rounded-full bg-[#182b1f]/85 px-3 py-1 text-xs font-medium text-white">{name}</span>
                 </div>
                 <CardContent className="flex flex-1 flex-col p-5 sm:p-6">
                   <div className="flex min-h-12 items-center gap-3">
@@ -190,7 +193,7 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))}
-          </div>
+          </AudienceCarousel>
         </div>
       </section>
 

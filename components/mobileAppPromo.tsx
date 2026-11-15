@@ -41,9 +41,9 @@ export function MobileAppPromo({ text }: MobileAppPromoProps) {
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#e5ece3] dark:bg-[#34443a]"><div className="h-full w-2/5 rounded-full bg-[#5c9567]" /></div>
           </div>
 
-          <div className="relative z-10 h-[410px] w-[min(80%,260px)] rounded-[2.25rem] border-[5px] border-[#183d2b] bg-[#183d2b] p-1.5 shadow-[0_28px_65px_-25px_rgba(0,0,0,0.38)] sm:h-[460px] sm:w-[min(58%,280px)]">
-            <div className="relative h-full overflow-hidden rounded-[1.8rem] bg-[#fafaf7] px-3.5 pb-3 pt-4 text-[#18211c] sm:px-4 sm:pt-5">
-              <span aria-hidden="true" className="absolute left-1/2 top-1.5 h-4 w-[34%] -translate-x-1/2 rounded-full bg-[#17211a]" />
+          <div className="relative z-10 h-[410px] w-[min(80%,240px)] rounded-[2rem] border-[3px] border-[#34433b] bg-[#34433b] p-[3px] shadow-[0_28px_65px_-25px_rgba(0,0,0,0.38)] ring-1 ring-[#9daaa0] sm:h-[460px] sm:w-[min(58%,270px)]">
+            <div className="relative h-full overflow-hidden rounded-[1.65rem] bg-[#fafaf7] px-3.5 pb-3 pt-4 text-[#18211c] sm:px-4 sm:pt-5">
+              <span aria-hidden="true" className="absolute left-1/2 top-1.5 size-2 -translate-x-1/2 rounded-full bg-[#17211a]" />
               <div className="mt-3 flex items-center justify-between">
                 <BrandLogo size="sm" />
                 <span className="grid size-7 place-items-center rounded-full bg-[#e7efe4] text-[10px] font-bold text-[#315d3c]">A</span>
