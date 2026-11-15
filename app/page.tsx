@@ -83,15 +83,15 @@ export default function Home() {
         <MobileNavigation isSignedIn={isSignedIn} isPending={isPending} userName={session?.user?.name} userEmail={session?.user?.email} userImage={session?.user?.image} />
       </header>
 
-      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-12 pt-7 sm:px-8 sm:pt-14 lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-2 lg:pt-3 xl:gap-5 2xl:px-10">
+      <section className="relative mx-auto grid w-full max-w-[1600px] items-center gap-10 px-5 pb-3 pt-4 sm:px-8 sm:pb-12 sm:pt-14 lg:grid-cols-[0.96fr_1.04fr] lg:gap-4 lg:px-8 lg:pb-2 lg:pt-3 xl:gap-5 2xl:px-10">
         <div className="relative z-10 max-w-[700px] text-center sm:text-left">
-          <p className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[#d7e1d9] bg-white/75 px-4 py-2.5 text-xs font-semibold text-[#173f2b] shadow-sm dark:border-[#34443a] dark:bg-[#18221b]/80 dark:text-[#b5cfb8] sm:text-sm">
+          <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-[#d7e1d9] bg-white/75 px-4 py-2 text-xs font-semibold text-[#173f2b] shadow-sm dark:border-[#34443a] dark:bg-[#18221b]/80 dark:text-[#b5cfb8] sm:mb-6 sm:py-2.5 sm:text-sm">
             <span className="size-2.5 rounded-full bg-[#17984d] shadow-[0_0_0_3px_rgba(23,152,77,0.12)]" />{text.heroEyebrow}
           </p>
-          <h1 className="mx-auto max-w-[360px] text-balance text-[clamp(2.2rem,9.7vw,3.4rem)] font-bold leading-[1.03] tracking-[-0.055em] sm:hidden">{text.headlineLead === "Your workspace should" ? <><span className="block">Your workspace</span><span className="block">should {text.headlineMiddle}</span></> : <span className="block">{text.headlineLead} {text.headlineMiddle}</span>} <span className="relative inline-block text-[#25613c] dark:text-[#a6c5a9]">{text.headlineAccent}<span aria-hidden="true" className="absolute -bottom-2 left-[25%] h-2 w-[70%] rounded-[50%] border-t-[4px] border-[#93cba0]" /></span></h1>
+          <h1 className="mx-auto max-w-[360px] text-balance text-[clamp(2.2rem,9.7vw,3.4rem)] font-bold leading-[1.03] tracking-[-0.055em] sm:hidden">{text.headlineLead === "Your workspace should" ? <><span className="block">Your workspace</span><span className="block">should {text.headlineMiddle}</span></> : <span className="block">{text.headlineLead} {text.headlineMiddle}</span>} <span className="relative inline-block text-[#176333] dark:text-[#a6c5a9]">{text.headlineAccent}<span aria-hidden="true" className="absolute -bottom-2 left-[27%] h-2 w-[70%] -rotate-1 rounded-[50%] border-t-[4px] border-[#81cc8e]" /><span aria-hidden="true" className="absolute -right-5 top-0 h-3 w-1 rotate-[30deg] rounded-full bg-[#16a34a]" /><span aria-hidden="true" className="absolute -right-7 top-3 h-1 w-3 -rotate-[30deg] rounded-full bg-[#16a34a]" /></span></h1>
           <div className="hidden sm:block"><HeroHeadline lead={text.headlineLead} middle={text.headlineMiddle} accent={text.headlineAccent} /></div>
-          <p className="mt-5 max-w-[630px] text-base leading-7 text-[#525d55] dark:text-[#b4c0b7] xl:mt-6 xl:text-lg xl:leading-8">{text.heroDescription}</p>
-          <div className="mx-auto mt-6 flex max-w-[340px] flex-col gap-3 sm:mx-0 sm:max-w-none sm:flex-row sm:items-center xl:mt-7">
+          <p className="mx-auto mt-5 max-w-[300px] text-base leading-6 text-[#525d55] dark:text-[#b4c0b7] sm:mx-0 sm:max-w-[630px] sm:leading-7 xl:mt-6 xl:text-lg xl:leading-8">{text.heroDescription}</p>
+          <div className="mx-auto mt-6 flex w-[min(100%,260px)] flex-col gap-2 sm:mx-0 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-3 xl:mt-7">
             {isPending ? (
               <span aria-live="polite" aria-busy="true" className="inline-flex h-12 items-center justify-center rounded-full bg-[#10482e]/70 px-7 text-sm font-semibold text-white xl:h-14 xl:px-8 xl:text-base">{text.checkingSession}</span>
             ) : (
@@ -99,8 +99,8 @@ export default function Home() {
                 {isSignedIn ? text.viewMyTasks : text.heroPrimary}<span aria-hidden="true" className="ml-2 text-lg">→</span>
               </Link>
             )}
-            <a href="#features" className="inline-flex h-12 items-center justify-center rounded-full border border-[#cfd7d0] bg-white/70 px-6 text-sm font-semibold text-[#17221b] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:border-[#435247] dark:bg-[#18221b] dark:text-[#e8eee9] dark:hover:bg-[#24352a] xl:h-14 xl:px-7 xl:text-base">
-              <Play className="mr-2 size-5 fill-current" aria-hidden="true" />{text.heroSecondary}
+            <a href="#features" className="inline-flex h-12 items-center justify-center rounded-full border border-[#a6cfaf] bg-white/70 px-6 text-sm font-semibold text-[#14532d] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] focus-visible:ring-offset-2 dark:border-[#435247] dark:bg-[#18221b] dark:text-[#e8eee9] dark:hover:bg-[#24352a] sm:border-[#cfd7d0] sm:text-[#17221b] xl:h-14 xl:px-7 xl:text-base">
+              <span className="mr-2 grid size-5 place-items-center rounded-full border-2 border-current sm:contents sm:border-0"><Play className="size-2.5 fill-current sm:mr-2 sm:size-5" aria-hidden="true" /></span>{text.heroSecondary}
             </a>
           </div>
           <MobileHeroPreview text={text} />
@@ -115,7 +115,7 @@ export default function Home() {
           { icon: ShieldCheck, title: text.trustPrivateTitle, detail: text.trustPrivateBody },
           { icon: Zap, title: text.trustSimpleTitle, detail: text.trustSimpleBody },
         ].map(({ icon: Icon, title, detail }, index) => (
-          <div key={index} className={`flex items-center gap-4 ${index ? "lg:border-l lg:border-[#cfd7d0] lg:pl-8 xl:pl-12" : ""}`}>
+          <div key={index} className={`relative flex items-center gap-4 ${index < 3 ? "after:absolute after:left-[17px] after:top-[calc(50%+22px)] after:h-4 after:w-px after:bg-[#b3cbb6] after:content-[''] dark:after:bg-[#526b58] sm:after:hidden" : ""} ${index ? "lg:border-l lg:border-[#cfd7d0] lg:pl-8 xl:pl-12" : ""}`}>
             <Icon className="size-9 shrink-0 text-[#176b3a] dark:text-[#a6c5a9]" aria-hidden="true" />
             <div><p className="text-base font-semibold leading-tight">{title}</p><p className="mt-1 text-sm text-[#59665d] dark:text-[#b4c0b7]">{detail}</p></div>
           </div>

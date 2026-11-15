@@ -41,8 +41,9 @@ export function MobileAppPromo({ text }: MobileAppPromoProps) {
             <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#e5ece3] dark:bg-[#34443a]"><div className="h-full w-2/5 rounded-full bg-[#5c9567]" /></div>
           </div>
 
-          <div className="relative z-10 h-[410px] w-[min(80%,240px)] rounded-[2rem] border-[3px] border-[#34433b] bg-[#34433b] p-[3px] shadow-[0_28px_65px_-25px_rgba(0,0,0,0.38)] ring-1 ring-[#9daaa0] sm:h-[460px] sm:w-[min(58%,270px)]">
-            <div className="relative h-full overflow-hidden rounded-[1.65rem] bg-[#fafaf7] px-3.5 pb-3 pt-4 text-[#18211c] sm:px-4 sm:pt-5">
+          <div aria-hidden="true" className="absolute left-[calc(50%+110px)] top-[46%] z-20 h-[155px] w-[8px] -rotate-[11deg] rounded-full border border-[#7f8983] bg-gradient-to-r from-[#69756d] via-[#e0e5e1] to-[#59665e] shadow-[2px_3px_3px_rgba(0,0,0,.25)] sm:left-[calc(50%+130px)] sm:h-[185px]"><span className="absolute -bottom-[7px] left-1/2 h-[7px] w-[3px] -translate-x-1/2 rounded-b-full bg-[#323d36]" /></div>
+          <div className="relative z-10 h-[410px] w-[min(80%,240px)] -rotate-[5deg] rounded-[9px] border-[4px] border-[#35413a] bg-[#35413a] p-[2px] shadow-[5px_10px_16px_-7px_rgba(16,54,31,0.55)] ring-2 ring-[#a3afa7] sm:h-[460px] sm:w-[min(58%,270px)]">
+            <div className="relative h-full overflow-hidden rounded-[4px] bg-[#fafaf7] px-3.5 pb-3 pt-4 text-[#18211c] sm:px-4 sm:pt-5">
               <span aria-hidden="true" className="absolute left-1/2 top-1.5 size-2 -translate-x-1/2 rounded-full bg-[#17211a]" />
               <div className="mt-3 flex items-center justify-between">
                 <BrandLogo size="sm" />

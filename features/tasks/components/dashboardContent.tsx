@@ -596,7 +596,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
               .sort((left, right) => Number(right.isPinned) - Number(left.isPinned) || left.position - right.position);
             return (
               <TaskColumn key={column.status} id={column.status} label={`${text.tasksFor}${column.title}`}>
-                <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 rounded-t-2xl border-b border-[#e7ece4] bg-[#edf1e8] px-4 py-3 dark:border-[#34443a] dark:bg-[#202b22] sm:-mx-5 sm:-mt-5 sm:px-5">
+                <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 rounded-t-2xl bg-[#e7eee1] px-4 py-3 dark:bg-[#202b22] sm:-mx-5 sm:-mt-5 sm:px-5">
                   <span className={`size-3 rounded-full ${column.color}`} />
                   <h2 className="text-sm font-semibold tracking-[-0.01em]">{column.title}</h2>
                   <span className="ml-auto grid size-7 place-items-center rounded-full bg-[#f1f4ef] text-xs font-medium text-[#68766c] dark:bg-[#253128] dark:text-[#b7c2ba]">{columnTasks.length}</span>
@@ -616,9 +616,9 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                   </div>
                 ) : (
                   <SortableContext items={columnTasks.map((task) => task.id)} strategy={verticalListSortingStrategy}>
-                  <ul className="grid gap-2.5">
+                  <ul className="grid gap-3">
                     {columnTasks.map((task) => (
-                        <SortableTask key={task.id} id={task.id} title={task.title} locale={locale} exiting={deletingTaskId === task.id || movingTaskId === task.id} disabled={Boolean(editingTaskId || movingTaskId || savingTaskId || deletingTaskId)}>
+                        <SortableTask key={task.id} id={task.id} title={task.title} locale={locale} completed={task.status === "completed"} exiting={deletingTaskId === task.id || movingTaskId === task.id} disabled={Boolean(editingTaskId || movingTaskId || savingTaskId || deletingTaskId)}>
                         {editingTaskId === task.id ? (
                           <form onSubmit={saveTask} className="grid gap-3">
                             <label className="grid gap-1.5 text-xs font-medium text-[#68736b] dark:text-[#b4c0b7]">
@@ -653,7 +653,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                           </form>
                         ) : (
                           <>
-                            <div className="flex items-start gap-2.5">
+                            <div className="flex items-start gap-2.5 pl-7">
                               {task.status === "completed" ? <Check className="mt-0.5 size-4 shrink-0 text-[#4e8d5b]" aria-label={column.title} /> : <Circle className="mt-0.5 size-4 shrink-0 text-[#9eae9f]" aria-hidden="true" />}
                               <div className="min-w-0 flex-1 pr-8">
                                 <h3 className={`break-words text-sm font-semibold leading-5 ${task.status === "completed" ? "text-[#829087] line-through dark:text-[#849187]" : "text-[#26342a] dark:text-[#e2eae4]"}`}>{task.title}</h3>
@@ -702,7 +702,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                                 </Menu.Portal>
                               </Menu.Root>
                             </div>
-                            <div className="mt-3 flex flex-wrap items-center gap-2 pl-6">
+                            <div className="mt-3 flex flex-wrap items-center gap-2 pl-[3.375rem]">
                               <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${priorityStyles[task.priority]}`}>
                                 <Flag className="size-3" aria-hidden="true" />
                                 {text.priorityLabel}: {priorities.find((option) => option.value === task.priority)?.label ?? text.priorityMedium}
@@ -713,7 +713,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                                 </span>
                               )}
                             </div>
-                            <div className="mt-3 flex justify-end gap-1 border-t border-[#f0f2ef] pt-2 dark:border-[#2d3a31]">
+                            <div className="mt-3 flex justify-between gap-1 border-t border-[#e7ede4] pt-2 dark:border-[#2d3a31]">
                               <button type="button" onClick={() => startEditing(task)} disabled={Boolean(savingTaskId || deletingTaskId)} className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#5e7662] transition hover:bg-[#f0f4ef] disabled:opacity-50 dark:text-[#bbd1be] dark:hover:bg-[#253128]">
                                 <Pencil className="size-3.5" aria-hidden="true" /> {text.editTask}
                               </button>
