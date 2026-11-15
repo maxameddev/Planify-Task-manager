@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { ChevronRight, Globe, Home, Layers, LayoutGrid, Menu, MessageCircle, Users, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
 import { useLanguage } from "@/components/languageProvider";
@@ -39,10 +39,10 @@ export function MobileNavigation({ isSignedIn, isPending, userName, userEmail, u
   }, [open]);
 
   const links = [
-    { href: "#features", label: text.featuresLink },
-    { href: "#pricing", label: text.pricingLink },
-    { href: "#audience", label: text.audienceNavLink },
-    { href: "#testimonials", label: text.testimonialsNavLink },
+    { href: "#features", label: text.featuresLink, icon: Home },
+    { href: "#pricing", label: text.pricingLink, icon: Layers },
+    { href: "#audience", label: text.audienceNavLink, icon: Users },
+    { href: "#testimonials", label: text.testimonialsNavLink, icon: MessageCircle },
   ];
   const displayName = userName?.trim() || userEmail?.trim() || "Planify";
 
@@ -53,15 +53,15 @@ export function MobileNavigation({ isSignedIn, isPending, userName, userEmail, u
         {open ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
       </button>
       {open && (
-        <nav id="mobile-navigation" aria-label={text.mainNavigation} className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-[#e3e9e2] bg-white p-3 shadow-[0_20px_50px_-25px_rgba(23,63,43,0.4)] dark:border-[#34443a] dark:bg-[#18221b] sm:inset-x-auto sm:right-0 sm:w-[24rem]">
-          <div className="border-b border-[#edf0eb] pb-3 dark:border-[#34443a]">
+        <nav id="mobile-navigation" aria-label={text.mainNavigation} className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-50 max-h-[calc(100dvh-6rem)] overflow-y-auto rounded-2xl border border-[#e3e9e2] bg-white p-4 shadow-[0_20px_50px_-25px_rgba(23,63,43,0.4)] dark:border-[#34443a] dark:bg-[#18221b] sm:inset-x-auto sm:right-0 sm:w-[24rem] sm:p-3">
+          <div className="pb-4 sm:border-b sm:border-[#edf0eb] sm:pb-3 dark:sm:border-[#34443a]">
             {isPending ? <span aria-live="polite" aria-busy="true" className="flex min-h-11 items-center justify-center text-sm text-[#657168] dark:text-[#b4c0b7]">{text.checkingSession}</span> : isSignedIn ? (
               <>
-                <div className="mb-3 flex min-w-0 items-center gap-3 px-1 py-1">
-                  <ProfileAvatar key={userImage || "initial"} image={userImage} name={userName} email={userEmail} className="size-10" />
+                <div className="mb-4 flex min-w-0 items-center gap-3 px-1 py-1 sm:mb-3">
+                  <ProfileAvatar key={userImage || "initial"} image={userImage} name={userName} email={userEmail} className="size-12 sm:size-10" />
                   <span className="min-w-0"><span className="block truncate text-sm font-semibold text-[#26352b] dark:text-[#e0e9e2]">{displayName}</span>{userEmail && <span className="block truncate text-xs text-[#657168] dark:text-[#b4c0b7]">{userEmail}</span>}</span>
                 </div>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className="flex min-h-11 items-center justify-center rounded-full bg-[#173f2b] px-5 text-sm font-semibold text-white outline-none transition-colors hover:bg-[#24583b] focus-visible:ring-2 focus-visible:ring-[#719378]">{text.goToDashboard}<span aria-hidden="true" className="ml-2">→</span></Link>
+                <Link href="/dashboard" onClick={() => setOpen(false)} className="flex min-h-11 items-center justify-center rounded-full bg-[#173f2b] px-5 text-sm font-semibold text-white outline-none transition-colors hover:bg-[#24583b] focus-visible:ring-2 focus-visible:ring-[#719378]"><LayoutGrid aria-hidden="true" className="mr-2 size-4 sm:hidden" />{text.goToDashboard}<span aria-hidden="true" className="ml-2">→</span></Link>
               </>
             ) : (
               <div className="grid gap-2">
@@ -70,12 +70,12 @@ export function MobileNavigation({ isSignedIn, isPending, userName, userEmail, u
               </div>
             )}
           </div>
-          <div className="py-2">
-            {links.map(({ href, label }) => (
-              <a key={href} href={href} onClick={() => setOpen(false)} className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-[#526057] outline-none transition-colors hover:bg-[#eef3eb] hover:text-[#173f2b] focus-visible:ring-2 focus-visible:ring-[#719378] dark:text-[#c3cec6] dark:hover:bg-[#253128] dark:hover:text-[#e0e9e2]">{label}</a>
+          <div className="divide-y divide-[#e3e9e2] overflow-hidden rounded-xl border border-[#e3e9e2] bg-[#f8faf7] dark:divide-[#34443a] dark:border-[#34443a] dark:bg-[#1b271f] sm:divide-y-0 sm:rounded-none sm:border-0 sm:bg-transparent sm:py-2 dark:sm:bg-transparent">
+            {links.map(({ href, label, icon: Icon }) => (
+              <a key={href} href={href} onClick={() => setOpen(false)} className="flex min-h-12 items-center gap-3 px-3 text-sm font-medium text-[#26352b] outline-none transition-colors hover:bg-[#eef3eb] hover:text-[#173f2b] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#719378] dark:text-[#c3cec6] dark:hover:bg-[#253128] dark:hover:text-[#e0e9e2] sm:min-h-11 sm:rounded-lg sm:text-[#526057]"><Icon className="size-5 shrink-0 text-[#315d3c] dark:text-[#a6c5a9] sm:hidden" aria-hidden="true" /><span className="min-w-0 flex-1">{label}</span><ChevronRight className="size-4 shrink-0 text-[#526b58] dark:text-[#a6c5a9] sm:hidden" aria-hidden="true" /></a>
             ))}
           </div>
-          <div className="flex items-center justify-between gap-3 border-t border-[#edf0eb] px-1 pt-3 text-sm font-medium text-[#526057] dark:border-[#34443a] dark:text-[#c3cec6]"><span>{text.language}</span><LanguageSwitcher /></div>
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-[#e3e9e2] px-3 py-2 text-sm font-medium text-[#526057] dark:border-[#34443a] dark:text-[#c3cec6] sm:mt-0 sm:rounded-none sm:border-x-0 sm:border-b-0 sm:border-t sm:border-[#edf0eb] sm:px-1 sm:pb-0 sm:pt-3 dark:sm:border-[#34443a]"><span className="flex items-center gap-3"><Globe className="size-5 text-[#315d3c] dark:text-[#a6c5a9] sm:hidden" aria-hidden="true" />{text.language}</span><LanguageSwitcher /></div>
         </nav>
       )}
     </div>
