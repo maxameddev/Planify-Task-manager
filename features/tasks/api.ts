@@ -7,6 +7,8 @@ export type NewTaskInput = {
   title: string;
   description: string;
   dueDate: string | null;
+  scheduledAt: string | null;
+  durationMinutes: number | null;
   status: TaskStatus;
   priority: TaskPriority;
 };

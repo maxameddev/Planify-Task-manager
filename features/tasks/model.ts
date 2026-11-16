@@ -7,6 +7,8 @@ const taskSchema = new Schema(
     title: { type: String, required: true, trim: true, minlength: 1, maxlength: 120 },
     description: { type: String, trim: true, maxlength: 2000, default: "" },
     dueDate: { type: Date, default: null },
+    scheduledAt: { type: Date, default: null },
+    durationMinutes: { type: Number, min: 5, max: 720, default: null },
     status: {
       type: String,
       enum: ["todo", "in_progress", "completed"],

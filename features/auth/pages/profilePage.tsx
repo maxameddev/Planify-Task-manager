@@ -13,6 +13,8 @@ export default async function ProfilePage() {
       initialEmail={session.user.email}
       initialPhoneNumber={session.user.phoneNumber ?? ""}
       initialImage={session.user.image ?? null}
+      initialPlanningMode={session.user.planningMode ?? "basic"}
+      initialTimeZone={session.user.timeZone ?? "Africa/Mogadishu"}
     />
   );
 }

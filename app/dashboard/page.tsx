@@ -15,6 +15,8 @@ export default async function DashboardPage() {
       userName={session.user.name}
       userEmail={session.user.email}
       userImage={session.user.image ?? null}
+      planningMode={session.user.planningMode ?? "basic"}
+      timeZone={session.user.timeZone ?? "Africa/Mogadishu"}
     />
   );
 }
