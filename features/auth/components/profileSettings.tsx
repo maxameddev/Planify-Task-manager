@@ -10,6 +10,7 @@ import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
 import { useLanguage } from "@/components/languageProvider";
 import { authClient } from "@/features/auth/client";
+import { TaskSelect } from "@/features/tasks/components/taskSelect";
 import { utcOffsetLabel } from "@/features/tasks/time";
 
 type ProfileSettingsProps = {
@@ -192,21 +193,27 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
             <fieldset className="grid gap-4 rounded-2xl border border-[#e5eae3] bg-[#fcfcfa] p-4 dark:border-[#34443a] dark:bg-[#151e18] sm:p-5">
               <legend className="px-1 text-sm font-semibold text-[#25342a] dark:text-[#e2eae4]">{text.taskPlanningSettings}</legend>
               <p className="-mt-2 text-xs leading-5 text-[#768078] dark:text-[#aebbb1]">{text.taskPlanningDescription}</p>
-              <label className="grid gap-1.5 text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
+              <div className="grid gap-1.5 text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
                 {text.planningMode}
-                <select value={planningMode} onChange={(event) => { setPlanningMode(event.target.value); setSaved(false); }} className="h-11 rounded-xl border border-[#dfe5de] bg-white px-3.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#1a251e] dark:text-[#e8eee9]">
-                  <option value="basic">{text.basicMode}</option>
-                  <option value="advanced">{text.advancedMode}</option>
-                </select>
+                <TaskSelect
+                  label={text.planningMode}
+                  hideLabel
+                  value={planningMode}
+                  onChange={(value) => { setPlanningMode(value); setSaved(false); }}
+                  options={[{ value: "basic", label: text.basicMode }, { value: "advanced", label: text.advancedMode }]}
+                />
                 <span className="text-xs font-normal leading-5 text-[#768078] dark:text-[#aebbb1]">{planningMode === "advanced" ? text.advancedModeDescription : text.basicModeDescription}</span>
-              </label>
-              <label className="grid gap-1.5 text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
+              </div>
+              <div className="grid gap-1.5 text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
                 {text.timeZone}
-                <select value={timeZone} onChange={(event) => { setTimeZone(event.target.value); setSaved(false); }} className="h-11 rounded-xl border border-[#dfe5de] bg-white px-3.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#1a251e] dark:text-[#e8eee9]">
-                  {timeZones.map((zone) => <option key={zone} value={zone}>{zone.replaceAll("_", " ")}</option>)}
-                </select>
+                <TaskSelect
+                  label={text.timeZone}
+                  value={timeZone}
+                  onChange={(value) => { setTimeZone(value); setSaved(false); }}
+                  options={timeZones.map((zone) => ({ value: zone, label: zone.split("/").map((part) => part.replaceAll("_", " ")).join(" · ") }))}
+                />
                 <span className="text-xs font-normal text-[#768078] dark:text-[#aebbb1]">{text.timeZoneDescription} · {utcOffsetLabel(timeZone)}</span>
-              </label>
+              </div>
             </fieldset>
 
             {error && <p role="alert" className="rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{error}</p>}

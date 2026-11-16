@@ -9,11 +9,15 @@ type TaskSelectProps = {
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
-  portalContainer: RefObject<HTMLElement | null>;
+  portalContainer?: RefObject<HTMLElement | null>;
+  hideLabel?: boolean;
+  className?: string;
+  triggerClassName?: string;
 };
 
-export function TaskSelect({ label, value, onChange, options, portalContainer }: TaskSelectProps) {
+export function TaskSelect({ label, value, onChange, options, portalContainer, hideLabel = false, className, triggerClassName }: TaskSelectProps) {
   return (
+    <div className={className}>
     <Select.Root<string>
       value={value}
       onValueChange={(nextValue) => {
@@ -21,11 +25,11 @@ export function TaskSelect({ label, value, onChange, options, portalContainer }:
       }}
       items={options}
     >
-      <Select.Label className="mb-1.5 block text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
+      <Select.Label className={hideLabel ? "sr-only" : "mb-1.5 block text-sm font-medium text-[#425047] dark:text-[#d3ddd5]"}>
         {label}
       </Select.Label>
       <Select.Trigger
-        className="inline-flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3.5 text-left text-sm text-[#314037] outline-none transition hover:border-[#bdcbbd] focus-visible:ring-2 focus-visible:ring-[#719378]/40 data-[popup-open]:border-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9] dark:hover:border-[#526b57] dark:data-[popup-open]:border-[#719378]"
+        className={`inline-flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3.5 text-left text-sm text-[#314037] outline-none transition hover:border-[#bdcbbd] focus-visible:ring-2 focus-visible:ring-[#719378]/40 data-[popup-open]:border-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9] dark:hover:border-[#526b57] dark:data-[popup-open]:border-[#719378] ${triggerClassName ?? ""}`}
       >
         <Select.Value />
         <Select.Icon className="text-[#819087] dark:text-[#a3b0a7]">
@@ -53,5 +57,6 @@ export function TaskSelect({ label, value, onChange, options, portalContainer }:
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
+    </div>
   );
 }
