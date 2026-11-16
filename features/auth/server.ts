@@ -9,19 +9,27 @@ import { isValidTimeZone } from "@/features/tasks/time";
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const isProduction = process.env.NODE_ENV === "production";
+const isVercelPreview = process.env.VERCEL === "1" && process.env.VERCEL_ENV === "preview";
 const configuredAuthBaseURL = process.env.BETTER_AUTH_URL?.trim();
-const authBaseURL = configuredAuthBaseURL ?? (
+const authBaseURLFallback = configuredAuthBaseURL ?? (
   isProduction ? undefined : "http://localhost:3000"
 );
 
-if (!authBaseURL) {
+if (!authBaseURLFallback) {
   throw new Error("BETTER_AUTH_URL must be set in production (for example, https://your-app.vercel.app).");
 }
 
-const parsedAuthBaseURL = new URL(authBaseURL);
+const parsedAuthBaseURL = new URL(authBaseURLFallback);
 if (isProduction && (parsedAuthBaseURL.protocol !== "https:" || parsedAuthBaseURL.hostname === "localhost")) {
   throw new Error("BETTER_AUTH_URL must be the public HTTPS URL of the production app.");
 }
+
+const vercelPreviewHosts = [process.env.VERCEL_BRANCH_URL, process.env.VERCEL_URL]
+  .filter((host): host is string => typeof host === "string" && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*\.vercel\.app$/i.test(host))
+  .filter((host, index, hosts) => hosts.indexOf(host) === index);
+const authBaseURL = isVercelPreview && vercelPreviewHosts.length > 0
+  ? { allowedHosts: vercelPreviewHosts, protocol: "https" as const, fallback: authBaseURLFallback }
+  : authBaseURLFallback;
 
 export const auth = betterAuth({
   appName: "Planify",
