@@ -9,11 +9,15 @@ type TaskSelectProps = {
   value: string;
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
-  portalContainer: RefObject<HTMLElement | null>;
+  portalContainer?: RefObject<HTMLElement | null>;
+  hideLabel?: boolean;
+  className?: string;
+  triggerClassName?: string;
 };
 
-export function TaskSelect({ label, value, onChange, options, portalContainer }: TaskSelectProps) {
+export function TaskSelect({ label, value, onChange, options, portalContainer, hideLabel = false, className, triggerClassName }: TaskSelectProps) {
   return (
+    <div className={className}>
     <Select.Root<string>
       value={value}
       onValueChange={(nextValue) => {
@@ -21,11 +25,11 @@ export function TaskSelect({ label, value, onChange, options, portalContainer }:
       }}
       items={options}
     >
-      <Select.Label className="mb-1.5 block text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
+      <Select.Label className={hideLabel ? "sr-only" : "mb-1.5 block text-sm font-medium text-[#425047] dark:text-[#d3ddd5]"}>
         {label}
       </Select.Label>
       <Select.Trigger
-        className="inline-flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3.5 text-left text-sm text-[#314037] outline-none transition hover:border-[#bdcbbd] focus-visible:ring-2 focus-visible:ring-[#719378]/40 data-[popup-open]:border-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9] dark:hover:border-[#526b57] dark:data-[popup-open]:border-[#719378]"
+        className={`inline-flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3.5 text-left text-sm text-[#314037] outline-none transition hover:border-[#bdcbbd] focus-visible:ring-2 focus-visible:ring-[#719378]/40 data-[popup-open]:border-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9] dark:hover:border-[#526b57] dark:data-[popup-open]:border-[#719378] ${triggerClassName ?? ""}`}
       >
         <Select.Value />
         <Select.Icon className="text-[#819087] dark:text-[#a3b0a7]">
@@ -33,7 +37,7 @@ export function TaskSelect({ label, value, onChange, options, portalContainer }:
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal container={portalContainer}>
-        <Select.Positioner side="bottom" align="start" sideOffset={6} collisionPadding={12} className="z-[100] outline-none">
+        <Select.Positioner side="bottom" align="start" alignItemWithTrigger={false} positionMethod="fixed" collisionBoundary={portalContainer?.current ?? "clipping-ancestors"} collisionAvoidance={{ align: "shift", side: "flip" }} sideOffset={6} collisionPadding={12} className="z-[100] max-w-[calc(100vw-2rem)] outline-none">
           <Select.Popup className="planify-popup w-[var(--anchor-width)] max-w-[calc(100vw-2rem)] max-h-[min(18rem,var(--available-height))] overflow-x-hidden overflow-y-auto rounded-xl border border-[#dfe5de] bg-white p-1.5 shadow-xl shadow-[#153521]/15 outline-none dark:border-[#3a4b3e] dark:bg-[#1b271f] dark:shadow-black/30">
             <Select.List>
               {options.map((option) => (
@@ -53,5 +57,6 @@ export function TaskSelect({ label, value, onChange, options, portalContainer }:
         </Select.Positioner>
       </Select.Portal>
     </Select.Root>
+    </div>
   );
 }

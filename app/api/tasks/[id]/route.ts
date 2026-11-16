@@ -1,14 +1,15 @@
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongoose";
-import { getAuthenticatedUserId } from "@/features/auth/api/getAuthenticatedUserId";
+import { getAuthenticatedUser } from "@/features/auth/api/getAuthenticatedUserId";
 import { TaskModel } from "@/features/tasks/model";
 import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, isValidDurationMinutes, isValidScheduledAt, serializeTask, taskErrorResponse, type TaskPriority, type TaskStatus } from "@/features/tasks/contracts";
+import { dateInTimeZone } from "@/features/tasks/time";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 async function getOwnedTask(request: Request, context: RouteContext) {
-  const userId = await getAuthenticatedUserId(request);
-  if (!userId) return { response: taskErrorResponse("Authentication required.", 401) };
+  const user = await getAuthenticatedUser(request);
+  if (!user) return { response: taskErrorResponse("Authentication required.", 401) };
 
   const { id } = await context.params;
   if (!mongoose.isValidObjectId(id)) {
@@ -16,10 +17,10 @@ async function getOwnedTask(request: Request, context: RouteContext) {
   }
 
   await connectToDatabase();
-  const task = await TaskModel.findOne({ _id: id, userId });
+  const task = await TaskModel.findOne({ _id: id, userId: user.id });
   if (!task) return { response: taskErrorResponse("Task not found.", 404) };
 
-  return { userId, task };
+  return { userId: user.id, timeZone: user.timeZone, task };
 }
 
 export async function GET(request: Request, context: RouteContext) {
@@ -96,7 +97,11 @@ export async function PUT(request: Request, context: RouteContext) {
       }
     }
     const resultingScheduledAt = updates.scheduledAt === undefined ? result.task.scheduledAt : updates.scheduledAt;
+    const resultingDueDate = updates.dueDate === undefined ? result.task.dueDate : updates.dueDate;
     const resultingDuration = updates.durationMinutes === undefined ? result.task.durationMinutes : updates.durationMinutes;
+    if (resultingDueDate && resultingScheduledAt && resultingDueDate.toISOString().slice(0, 10) <= dateInTimeZone(resultingScheduledAt, result.timeZone)) {
+      return taskErrorResponse("The due date must be later than the scheduled date.", 400);
+    }
     if (resultingScheduledAt && !resultingDuration) return taskErrorResponse("Choose a duration for a scheduled task.", 400);
     if (!resultingScheduledAt && resultingDuration) return taskErrorResponse("A start time is required when setting a duration.", 400);
     if (Object.keys(updates).length === 0) {

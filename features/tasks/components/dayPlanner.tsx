@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, Clock3, PencilLine, Search } from "lucide-react";
 import type { TaskDto, TaskPriority, TaskStatus } from "@/features/tasks/contracts";
 import { dateInTimeZone, dateLabelInTimeZone, timeInTimeZone, utcOffsetLabel } from "@/features/tasks/time";
+import { TaskSelect } from "@/features/tasks/components/taskSelect";
 
 type DayPlannerLabels = {
   today: string;
@@ -97,16 +98,22 @@ export function DayPlanner({ tasks, timeZone, locale, labels, statusOptions, pri
           ))}
         </div>
         <div className="flex flex-1 flex-wrap gap-2 lg:justify-end">
-          <label className="sr-only" htmlFor="planner-status-filter">{labels.filterStatus}</label>
-          <select id="planner-status-filter" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-10 min-w-36 rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3 text-sm text-[#425047] outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#d3ddd5]">
-            <option value="all">{labels.allStatuses}</option>
-            {statusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
-          <label className="sr-only" htmlFor="planner-priority-filter">{labels.filterPriority}</label>
-          <select id="planner-priority-filter" value={priorityFilter} onChange={(event) => setPriorityFilter(event.target.value)} className="h-10 min-w-36 rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3 text-sm text-[#425047] outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#d3ddd5]">
-            <option value="all">{labels.allPriorities}</option>
-            {priorityOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
+          <TaskSelect
+            label={labels.filterStatus}
+            hideLabel
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[{ value: "all", label: labels.allStatuses }, ...statusOptions]}
+            triggerClassName="h-10 min-w-36 px-3"
+          />
+          <TaskSelect
+            label={labels.filterPriority}
+            hideLabel
+            value={priorityFilter}
+            onChange={setPriorityFilter}
+            options={[{ value: "all", label: labels.allPriorities }, ...priorityOptions]}
+            triggerClassName="h-10 min-w-36 px-3"
+          />
           <label className="relative min-w-48 flex-1 lg:max-w-64">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#87928a]" aria-hidden="true" />
             <span className="sr-only">{labels.searchTasks}</span>
@@ -123,7 +130,7 @@ export function DayPlanner({ tasks, timeZone, locale, labels, statusOptions, pri
             <article key={task.id} className="grid gap-3 rounded-2xl border border-[#e0e8de] bg-white p-4 shadow-sm shadow-[#183c22]/[0.03] dark:border-[#34443a] dark:bg-[#1a251e] sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-center">
               <div className="flex items-center gap-2 text-sm font-semibold text-[#315d3c] dark:text-[#b7cfba]">
                 <Clock3 className="size-4 shrink-0" aria-hidden="true" />
-                {task.scheduledAt ? <span>{timeInTimeZone(task.scheduledAt, timeZone, locale)}{task.durationMinutes ? ` · ${task.durationMinutes} ${labels.minutes}` : ""}</span> : <span>{labels.unscheduled}</span>}
+                {task.scheduledAt ? <span>{timeInTimeZone(task.scheduledAt, timeZone, locale)}{task.durationMinutes ? ` · ${task.durationMinutes / 60}h` : ""}</span> : <span>{labels.unscheduled}</span>}
               </div>
               <div className="min-w-0">
                 <h3 className={`break-words text-sm font-semibold ${task.status === "completed" ? "text-[#6e7b70] line-through dark:text-[#adbbb0]" : "text-[#1d3023] dark:text-[#e2eae4]"}`}>{task.title}</h3>
@@ -134,9 +141,14 @@ export function DayPlanner({ tasks, timeZone, locale, labels, statusOptions, pri
                 </div>
               </div>
               <div className="flex items-center gap-2 sm:justify-end">
-                <select aria-label={labels.filterStatus} value={task.status} onChange={(event) => onStatusChange(task, event.target.value as TaskStatus)} className="h-9 min-w-32 rounded-lg border border-[#dfe5de] bg-[#fcfcfa] px-2.5 text-xs text-[#425047] outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#d3ddd5]">
-                  {statusOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
+                <TaskSelect
+                  label={`${labels.filterStatus}: ${task.title}`}
+                  hideLabel
+                  value={task.status}
+                  onChange={(next) => onStatusChange(task, next as TaskStatus)}
+                  options={statusOptions}
+                  triggerClassName="h-9 min-w-32 rounded-lg px-2.5 text-xs"
+                />
                 <button type="button" onClick={() => onEdit(task)} aria-label={`${labels.editTask}: ${task.title}`} className="grid size-9 place-items-center rounded-lg text-[#5e7662] transition hover:bg-[#f0f4ef] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:text-[#bbd1be] dark:hover:bg-[#253128]"><PencilLine className="size-4" aria-hidden="true" /></button>
               </div>
             </article>

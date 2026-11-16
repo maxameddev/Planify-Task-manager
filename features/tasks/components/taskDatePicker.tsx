@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/i18n";
 type TaskDatePickerProps = {
   label: string;
   value: string;
+  minDate?: string;
   onChange: (value: string) => void;
   locale: Locale;
   todayLabel: string;
@@ -21,6 +22,13 @@ function dateKey(date: Date) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${date.getFullYear()}-${month}-${day}`;
+}
+
+export function nextCalendarDate(value: string) {
+  const parsed = parseDate(value);
+  if (!parsed) return undefined;
+  parsed.setDate(parsed.getDate() + 1);
+  return dateKey(parsed);
 }
 
 function parseDate(value: string) {
@@ -43,6 +51,7 @@ function addMonthsClamped(date: Date, amount: number) {
 export function TaskDatePicker({
   label,
   value,
+  minDate,
   onChange,
   locale,
   todayLabel,
@@ -84,7 +93,9 @@ export function TaskDatePicker({
   }, [focusedDate, open]);
 
   function openCalendar() {
-    const startDate = parseDate(value) ?? new Date();
+    const selectedDate = parseDate(value) ?? new Date();
+    const minimumDate = parseDate(minDate ?? "");
+    const startDate = minimumDate && selectedDate < minimumDate ? minimumDate : selectedDate;
     setDisplayMonth(startOfMonth(startDate));
     setFocusedDate(dateKey(startDate));
     setOpen(true);
@@ -142,7 +153,7 @@ export function TaskDatePicker({
         </Popover.Trigger>
       </div>
       <Popover.Portal container={portalContainer}>
-        <Popover.Positioner side="bottom" align="start" sideOffset={8} collisionPadding={12} className="z-[100] outline-none">
+        <Popover.Positioner side="bottom" align="start" positionMethod="fixed" collisionBoundary={portalContainer.current ?? "clipping-ancestors"} collisionAvoidance={{ align: "shift", side: "flip" }} sideOffset={8} collisionPadding={12} className="z-[100] max-w-[calc(100vw-2rem)] outline-none">
           <Popover.Popup className="planify-popup w-[19rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-[#dfe5de] bg-white p-4 text-[#25342a] shadow-xl shadow-[#153521]/15 outline-none dark:border-[#3a4b3e] dark:bg-[#1b271f] dark:text-[#e4ece6]">
             <Popover.Title className="sr-only">{label}</Popover.Title>
             <div className="mb-3 flex items-center justify-between gap-2">
@@ -169,6 +180,7 @@ export function TaskDatePicker({
                     const isSelected = value === key;
                     const isToday = key === todayKey;
                     const isDisplayedMonth = day.getMonth() === displayMonth.getMonth();
+                    const isBeforeMinimum = Boolean(minDate && key < minDate);
                     return (
                       <div key={key} role="gridcell" aria-selected={isSelected}>
                         <button
@@ -178,11 +190,13 @@ export function TaskDatePicker({
                           aria-label={dayLabelFormatter.format(day)}
                           aria-pressed={isSelected}
                           aria-current={isToday ? "date" : undefined}
+                          aria-disabled={isBeforeMinimum || undefined}
+                          disabled={isBeforeMinimum}
                           data-calendar-day={key}
                           onClick={() => chooseDate(day)}
                           onFocus={() => setFocusedDate(key)}
                           onKeyDown={(event) => handleDayKeyDown(event, day)}
-                          className={`grid size-9 place-items-center rounded-full text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-[#719378] ${isSelected ? "bg-[#17452d] font-semibold text-white shadow-sm dark:bg-[#4a8058]" : isToday ? "font-semibold text-[#17452d] ring-1 ring-[#86a68a] dark:text-[#b7d7bb] dark:ring-[#678b6d]" : isDisplayedMonth ? "text-[#45534a] hover:bg-[#edf3ec] dark:text-[#d2ddd4] dark:hover:bg-[#2a392e]" : "text-[#a6aea7] hover:bg-[#f2f5f1] dark:text-[#68756c] dark:hover:bg-[#26342a]"}`}
+                          className={`grid size-9 place-items-center rounded-full text-xs outline-none transition focus-visible:ring-2 focus-visible:ring-[#719378] disabled:cursor-not-allowed disabled:opacity-30 ${isSelected ? "bg-[#17452d] font-semibold text-white shadow-sm dark:bg-[#4a8058]" : isToday ? "font-semibold text-[#17452d] ring-1 ring-[#86a68a] dark:text-[#b7d7bb] dark:ring-[#678b6d]" : isDisplayedMonth ? "text-[#45534a] hover:bg-[#edf3ec] dark:text-[#d2ddd4] dark:hover:bg-[#2a392e]" : "text-[#a6aea7] hover:bg-[#f2f5f1] dark:text-[#68756c] dark:hover:bg-[#26342a]"}`}
                         >
                           {day.getDate()}
                         </button>

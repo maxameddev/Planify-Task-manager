@@ -11,7 +11,7 @@ import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
 import { useLanguage } from "@/components/languageProvider";
 import { authClient } from "@/features/auth/client";
-import { TaskDatePicker } from "@/features/tasks/components/taskDatePicker";
+import { nextCalendarDate, TaskDatePicker } from "@/features/tasks/components/taskDatePicker";
 import { TaskSelect } from "@/features/tasks/components/taskSelect";
 import { DndContext, PointerSensor, TouchSensor, KeyboardSensor, closestCorners, useSensor, useSensors, type DragEndEvent, type KeyboardCoordinateGetter } from "@dnd-kit/core";
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -21,7 +21,7 @@ import type { TaskDto as Task, TaskPriority, TaskStatus } from "@/features/tasks
 import { createTaskRequest, deleteTaskRequest, fetchTasks, updateTaskRequest } from "@/features/tasks/api";
 import { DayPlanner } from "@/features/tasks/components/dayPlanner";
 import { ScheduleFields } from "@/features/tasks/components/scheduleFields";
-import { dateTimeInputsInTimeZone, localDateTimeToIso } from "@/features/tasks/time";
+import { dateInTimeZone, dateTimeInputsInTimeZone, localDateTimeToIso } from "@/features/tasks/time";
 
 type DashboardContentProps = { userName: string; userEmail: string; userImage: string | null; planningMode: string; timeZone: string };
 
@@ -66,7 +66,7 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
   const [editScheduledTime, setEditScheduledTime] = useState("");
   const [editDurationMinutes, setEditDurationMinutes] = useState("60");
   const [activeView, setActiveView] = useState<"day" | "board">(planningMode === "advanced" ? "day" : "board");
-  const [error, setError] = useState<"load" | "save" | "validation" | "schedule" | null>(null);
+  const [error, setError] = useState<"load" | "save" | "validation" | "schedule" | "dueDate" | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [dialogClosing, setDialogClosing] = useState(false);
   const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -213,6 +213,10 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
       setError("schedule");
       return;
     }
+    if (isAdvanced && dueDate && scheduledDate && dueDate <= scheduledDate) {
+      setError("dueDate");
+      return;
+    }
     setIsCreating(true);
     try {
       const createdTask = await createTaskRequest({ title, description, dueDate: dueDate || null, status, priority, scheduledAt, durationMinutes: scheduledAt ? Number(durationMinutes) : null });
@@ -247,6 +251,7 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
     setEditDurationMinutes(String(task.durationMinutes ?? 60));
     setEditStatus(task.status);
     setEditPriority(task.priority);
+    if (isAdvanced) setActiveView("board");
   }
 
   async function saveTask(event: FormEvent<HTMLFormElement>) {
@@ -274,6 +279,12 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
     if (isAdvanced && editScheduledDate && editScheduledTime && !scheduledAt) {
       setRequestError(null);
       setError("schedule");
+      return;
+    }
+    const scheduledLocalDate = scheduledAt ? dateInTimeZone(new Date(scheduledAt), timeZone) : "";
+    if (editDueDate && scheduledLocalDate && editDueDate <= scheduledLocalDate) {
+      setRequestError(null);
+      setError("dueDate");
       return;
     }
 
@@ -447,7 +458,7 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
   const totalCount = tasks.length;
   const completedCount = tasks.filter((task) => task.status === "completed").length;
   const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
-  const errorMessage = requestError ?? (error === "load" ? text.taskLoadError : error === "save" ? text.taskSaveError : error === "validation" ? text.taskTitleRequired : error === "schedule" ? text.scheduleError : null);
+  const errorMessage = requestError ?? (error === "load" ? text.taskLoadError : error === "save" ? text.taskSaveError : error === "validation" ? text.taskTitleRequired : error === "schedule" ? text.scheduleError : error === "dueDate" ? text.dueDateAfterScheduleError : null);
   const priorityStyles: Record<TaskPriority, string> = {
     low: "bg-[#e6f0ff] text-[#23539a] dark:bg-[#1e2d46] dark:text-[#b7d2ff]",
     medium: "bg-[#fff0d6] text-[#8a5200] dark:bg-[#3a2c17] dark:text-[#f1ca7a]",
@@ -538,12 +549,15 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
             aria-modal="true"
             data-closing={dialogClosing || undefined}
             aria-labelledby="create-task-title"
+            onClick={(event) => {
+              if (event.target === event.currentTarget) closeCreateDialog();
+            }}
             onCancel={(event) => {
               event.preventDefault();
               closeCreateDialog();
             }}
             style={dialogPosition ? { left: `${dialogPosition.left}px`, top: `${dialogPosition.top}px`, right: "auto", bottom: "auto", margin: 0 } : undefined}
-            className="task-create-dialog fixed inset-0 mx-auto my-auto max-h-[calc(100dvh-2rem)] w-[min(40rem,calc(100%-2rem))] overflow-y-auto rounded-2xl border border-[#e1e7df] bg-white p-0 text-[#18211c] shadow-2xl shadow-[#12251a]/25 dark:border-[#34443a] dark:bg-[#18221b] dark:text-[#e8eee9]"
+            className="task-create-dialog fixed inset-0 mx-auto my-auto max-h-[calc(100dvh-2rem)] w-[min(40rem,calc(100%-2rem))] overflow-x-hidden overflow-y-auto rounded-2xl border border-[#e1e7df] bg-white p-0 text-[#18211c] shadow-2xl shadow-[#12251a]/25 dark:border-[#34443a] dark:bg-[#18221b] dark:text-[#e8eee9]"
           >
             <div
               onPointerDown={startDialogDrag}
@@ -570,11 +584,12 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
                 {text.taskDescription}
                 <textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={2000} rows={2} placeholder={text.taskDescriptionPlaceholder} className="min-h-16 min-w-0 resize-y rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3.5 py-2.5 text-sm outline-none transition placeholder:text-[#9aa39c] focus:border-[#719378] focus:ring-2 focus:ring-[#719378]/15 dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9] dark:placeholder:text-[#839087]" />
               </label>
-              {isAdvanced && <ScheduleFields date={scheduledDate} time={scheduledTime} duration={durationMinutes} timeZone={timeZone} labels={{ date: text.scheduledDate, time: text.startTime, duration: text.duration, minutes: text.minutes, timeSavedUtc: text.timeSavedUtc }} onDateChange={setScheduledDate} onTimeChange={setScheduledTime} onDurationChange={setDurationMinutes} />}
+              {isAdvanced && <ScheduleFields date={scheduledDate} time={scheduledTime} duration={durationMinutes} timeZone={timeZone} locale={locale} portalContainer={createTaskDialogRef} labels={{ schedule: text.schedule, date: text.scheduledDate, time: text.startTime, hour: text.hour, minute: text.minute, duration: text.duration, minutes: text.minutes, timeSavedUtc: text.timeSavedUtc, today: text.today, clear: text.clear, previousMonth: text.previousMonth, nextMonth: text.nextMonth }} onDateChange={setScheduledDate} onTimeChange={setScheduledTime} onDurationChange={setDurationMinutes} />}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <TaskDatePicker
                   label={text.dueDate}
                   value={dueDate}
+                  minDate={nextCalendarDate(isAdvanced ? scheduledDate : "")}
                   onChange={setDueDate}
                   locale={locale}
                   todayLabel={text.today}
@@ -588,7 +603,7 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
                   <TaskSelect label={text.priorityLabel} value={priority} onChange={(next) => setPriority(next as TaskPriority)} options={priorities} portalContainer={createTaskDialogRef} />
                 </div>
               </div>
-              {(error === "save" || error === "validation" || error === "schedule") && errorMessage && <p role="alert" className="rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{errorMessage}</p>}
+              {(error === "save" || error === "validation" || error === "schedule" || error === "dueDate") && errorMessage && <p role="alert" className="rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{errorMessage}</p>}
               <div className="flex flex-col-reverse justify-end gap-2.5 border-t border-[#edf0eb] pt-3 dark:border-[#2d3a31] sm:flex-row">
                 <button type="button" onClick={closeCreateDialog} className="inline-flex h-10 items-center justify-center rounded-xl border border-[#dfe5de] px-5 text-sm font-semibold text-[#526056] transition hover:bg-[#f4f6f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] dark:border-[#34443a] dark:text-[#d3ddd5] dark:hover:bg-[#253128] dark:focus-visible:ring-[#9fbea4]">
                   {text.cancel}
@@ -663,10 +678,10 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
               .sort((left, right) => Number(right.isPinned) - Number(left.isPinned) || left.position - right.position);
             return (
               <TaskColumn key={column.status} id={column.status} label={`${text.tasksFor}${column.title}`}>
-                <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 rounded-t-2xl border-b border-[#b8cdb6] bg-[#d3e2ce] px-4 py-3 dark:border-[#405546] dark:bg-[#25382a] sm:-mx-5 sm:-mt-5 sm:px-5">
+                <div className="-mx-4 -mt-4 mb-4 flex items-center gap-3 rounded-t-2xl border-b border-[#b1c9af] bg-[#d8e7d3] px-4 py-3.5 dark:border-[#405546] dark:bg-[#25382a] sm:-mx-5 sm:-mt-5 sm:px-5">
                   {column.status === "todo" ? <CircleDot className="size-5 text-[#326a42] dark:text-[#a6c5a9]" aria-hidden="true" /> : column.status === "in_progress" ? <CircleDashed className="size-5 text-[#326a42] dark:text-[#a6c5a9]" aria-hidden="true" /> : <CircleCheck className="size-5 text-[#326a42] dark:text-[#a6c5a9]" aria-hidden="true" />}
-                  <h2 className="text-sm font-semibold tracking-[-0.01em] text-[#173f2b] dark:text-[#e2eae4]">{column.title}</h2>
-                  <span className="ml-auto grid size-7 place-items-center rounded-full bg-[#b9d0b3] text-xs font-semibold text-[#244c30] dark:bg-[#344a37] dark:text-[#d6ead9]">{columnTasks.length}</span>
+                  <h2 className="text-base font-bold tracking-[-0.01em] text-[#173f2b] dark:text-[#e2eae4]">{column.title}</h2>
+                  <span className="ml-auto grid size-8 place-items-center rounded-full bg-[#b9d0b3] text-sm font-bold text-[#244c30] dark:bg-[#344a37] dark:text-[#d6ead9]">{columnTasks.length}</span>
                 </div>
 
                 {isLoading ? (
@@ -696,10 +711,11 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
                               {text.taskDescription}
                               <textarea value={editDescription} onChange={(event) => setEditDescription(event.target.value)} maxLength={2000} rows={2} className="resize-y rounded-lg border border-[#dfe5de] bg-[#fcfcfa] px-3 py-2 text-sm text-[#18211c] outline-none focus:border-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9]" />
                             </label>
-                            {isAdvanced && <ScheduleFields date={editScheduledDate} time={editScheduledTime} duration={editDurationMinutes} timeZone={timeZone} labels={{ date: text.scheduledDate, time: text.startTime, duration: text.duration, minutes: text.minutes, timeSavedUtc: text.timeSavedUtc }} onDateChange={setEditScheduledDate} onTimeChange={setEditScheduledTime} onDurationChange={setEditDurationMinutes} />}
+                            {isAdvanced && <ScheduleFields date={editScheduledDate} time={editScheduledTime} duration={editDurationMinutes} timeZone={timeZone} locale={locale} portalContainer={createTaskDialogRef} labels={{ schedule: text.schedule, date: text.scheduledDate, time: text.startTime, hour: text.hour, minute: text.minute, duration: text.duration, minutes: text.minutes, timeSavedUtc: text.timeSavedUtc, today: text.today, clear: text.clear, previousMonth: text.previousMonth, nextMonth: text.nextMonth }} onDateChange={setEditScheduledDate} onTimeChange={setEditScheduledTime} onDurationChange={setEditDurationMinutes} />}
                             <TaskDatePicker
                               label={text.dueDate}
                               value={editDueDate}
+                              minDate={nextCalendarDate(editScheduledDate)}
                               onChange={setEditDueDate}
                               locale={locale}
                               todayLabel={text.today}
@@ -721,12 +737,12 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
                           </form>
                         ) : (
                           <>
-                            <div className="flex items-start gap-2.5 pl-7">
+                            <div className="flex items-start gap-3 pl-7">
                               {task.status === "completed" ? <Check className="mt-0.5 size-4 shrink-0 text-[#4e8d5b]" aria-label={column.title} /> : <Circle className="mt-0.5 size-4 shrink-0 text-[#9eae9f]" aria-hidden="true" />}
                               <div className="min-w-0 flex-1 pr-8">
-                                <h3 className={`break-words text-sm font-semibold leading-5 ${task.status === "completed" ? "text-[#53695a] line-through dark:text-[#adbbb0]" : "text-[#1d3023] dark:text-[#e2eae4]"}`}>{task.title}</h3>
+                                <h3 className={`break-words text-base font-bold leading-6 tracking-[-0.015em] sm:text-[17px] ${task.status === "completed" ? "text-[#53695a] line-through dark:text-[#adbbb0]" : "text-[#172b1e] dark:text-[#e2eae4]"}`}>{task.title}</h3>
                                 {task.isPinned && <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#e8f0e7] px-2 py-0.5 text-[10px] font-semibold text-[#285c38] dark:bg-[#2b3d2f] dark:text-[#c2ddc6]"><Pin className="size-3 fill-current" aria-hidden="true" />{text.pinned}</span>}
-                                {task.description && <p className="mt-1.5 whitespace-pre-wrap break-words text-xs leading-5 text-[#56675b] dark:text-[#becbc1]">{task.description}</p>}
+                                {task.description && <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#4b5d50] dark:text-[#c5d0c7]">{task.description}</p>}
                               </div>
                               <Menu.Root>
                                 <Menu.Trigger
@@ -770,13 +786,13 @@ export function DashboardContent({ userName, userEmail, userImage, planningMode,
                                 </Menu.Portal>
                               </Menu.Root>
                             </div>
-                            <div className="mt-3 flex flex-wrap items-center gap-2 pl-[3.375rem]">
-                              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${priorityStyles[task.priority]}`}>
+                            <div className="mt-4 flex flex-wrap items-center gap-2 pl-[3.375rem]">
+                              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${priorityStyles[task.priority]}`}>
                                 <Flag className="size-3" aria-hidden="true" />
                                 {text.priorityLabel}: {priorities.find((option) => option.value === task.priority)?.label ?? text.priorityMedium}
                               </span>
                               {task.dueDate && (
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f3f5f1] px-2.5 py-1 text-[11px] font-medium text-[#6b776e] dark:bg-[#253128] dark:text-[#b7c2ba]">
+                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#f3f5f1] px-3 py-1.5 text-xs font-medium text-[#59675d] dark:bg-[#253128] dark:text-[#c2cec5]">
                                   <CalendarDays className="size-3" aria-hidden="true" /> {formatDueDate(task.dueDate)}
                                 </span>
                               )}
