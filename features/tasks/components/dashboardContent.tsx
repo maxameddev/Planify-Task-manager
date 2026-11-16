@@ -19,14 +19,17 @@ import { TaskColumn, SortableTask } from "@/features/tasks/components/sortableTa
 import { calculateTaskMove } from "@/features/tasks/order";
 import type { TaskDto as Task, TaskPriority, TaskStatus } from "@/features/tasks/contracts";
 import { createTaskRequest, deleteTaskRequest, fetchTasks, updateTaskRequest } from "@/features/tasks/api";
+import { DayPlanner } from "@/features/tasks/components/dayPlanner";
+import { ScheduleFields } from "@/features/tasks/components/scheduleFields";
+import { dateTimeInputsInTimeZone, localDateTimeToIso } from "@/features/tasks/time";
 
-type DashboardContentProps = { userName: string; userEmail: string; userImage: string | null };
+type DashboardContentProps = { userName: string; userEmail: string; userImage: string | null; planningMode: string; timeZone: string };
 
 function getRequestError(error: unknown) {
   return error instanceof Error && error.message.trim() ? error.message : null;
 }
 
-export function DashboardContent({ userName, userEmail, userImage }: DashboardContentProps) {
+export function DashboardContent({ userName, userEmail, userImage, planningMode, timeZone }: DashboardContentProps) {
   const { locale, text } = useLanguage();
   const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -51,12 +54,19 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
   const [dueDate, setDueDate] = useState("");
   const [status, setStatus] = useState<TaskStatus>("todo");
   const [priority, setPriority] = useState<TaskPriority>("medium");
+  const [scheduledDate, setScheduledDate] = useState("");
+  const [scheduledTime, setScheduledTime] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState("60");
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editDueDate, setEditDueDate] = useState("");
   const [editStatus, setEditStatus] = useState<TaskStatus>("todo");
   const [editPriority, setEditPriority] = useState<TaskPriority>("medium");
-  const [error, setError] = useState<"load" | "save" | "validation" | null>(null);
+  const [editScheduledDate, setEditScheduledDate] = useState("");
+  const [editScheduledTime, setEditScheduledTime] = useState("");
+  const [editDurationMinutes, setEditDurationMinutes] = useState("60");
+  const [activeView, setActiveView] = useState<"day" | "board">(planningMode === "advanced" ? "day" : "board");
+  const [error, setError] = useState<"load" | "save" | "validation" | "schedule" | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [dialogClosing, setDialogClosing] = useState(false);
   const closingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,6 +88,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     { value: "medium" as const, label: text.priorityMedium },
     { value: "high" as const, label: text.priorityHigh },
   ];
+  const isAdvanced = planningMode === "advanced";
 
   useEffect(() => {
     let isActive = true;
@@ -193,13 +204,25 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
       createTaskDialogRef.current?.querySelector<HTMLInputElement>("[name='task-title']")?.focus();
       return;
     }
+    if (isAdvanced && Boolean(scheduledDate) !== Boolean(scheduledTime)) {
+      setError("schedule");
+      return;
+    }
+    const scheduledAt = isAdvanced && scheduledDate && scheduledTime ? localDateTimeToIso(scheduledDate, scheduledTime, timeZone) : null;
+    if (isAdvanced && scheduledDate && scheduledTime && !scheduledAt) {
+      setError("schedule");
+      return;
+    }
     setIsCreating(true);
     try {
-      const createdTask = await createTaskRequest({ title, description, dueDate: dueDate || null, status, priority });
+      const createdTask = await createTaskRequest({ title, description, dueDate: dueDate || null, status, priority, scheduledAt, durationMinutes: scheduledAt ? Number(durationMinutes) : null });
       setTasks((current) => [createdTask, ...current]);
       setTitle("");
       setDescription("");
       setDueDate("");
+      setScheduledDate("");
+      setScheduledTime("");
+      setDurationMinutes("60");
       setStatus("todo");
       setPriority("medium");
       closeCreateDialog();
@@ -218,6 +241,10 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
     setEditTitle(task.title);
     setEditDescription(task.description);
     setEditDueDate(task.dueDate ?? "");
+    const scheduledInputs = dateTimeInputsInTimeZone(task.scheduledAt, timeZone);
+    setEditScheduledDate(scheduledInputs.date);
+    setEditScheduledTime(scheduledInputs.time);
+    setEditDurationMinutes(String(task.durationMinutes ?? 60));
     setEditStatus(task.status);
     setEditPriority(task.priority);
   }
@@ -231,14 +258,32 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
       document.querySelector<HTMLInputElement>("[data-edit-task-title]")?.focus();
       return;
     }
-
+    if (isAdvanced && Boolean(editScheduledDate) !== Boolean(editScheduledTime)) {
+      setRequestError(null);
+      setError("schedule");
+      return;
+    }
     const taskId = editingTaskId;
     const originalTask = tasks.find((task) => task.id === taskId);
+    const scheduledAt = isAdvanced
+      ? editScheduledDate && editScheduledTime ? localDateTimeToIso(editScheduledDate, editScheduledTime, timeZone) : null
+      : originalTask?.scheduledAt ?? null;
+    const nextDurationMinutes = isAdvanced
+      ? scheduledAt ? Number(editDurationMinutes) : null
+      : originalTask?.durationMinutes ?? null;
+    if (isAdvanced && editScheduledDate && editScheduledTime && !scheduledAt) {
+      setRequestError(null);
+      setError("schedule");
+      return;
+    }
+
     if (originalTask) {
       const hasChanges =
         editTitle.trim() !== originalTask.title ||
         editDescription.trim() !== originalTask.description.trim() ||
         (editDueDate || null) !== (originalTask.dueDate || null) ||
+        (scheduledAt || null) !== (originalTask.scheduledAt || null) ||
+        nextDurationMinutes !== (originalTask.durationMinutes || null) ||
         editStatus !== originalTask.status ||
         editPriority !== originalTask.priority;
 
@@ -256,6 +301,8 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
         title: editTitle,
         description: editDescription,
         dueDate: editDueDate || null,
+        scheduledAt,
+        durationMinutes: nextDurationMinutes,
         status: editStatus,
         priority: editPriority,
       });
@@ -400,7 +447,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
   const totalCount = tasks.length;
   const completedCount = tasks.filter((task) => task.status === "completed").length;
   const progress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
-  const errorMessage = requestError ?? (error === "load" ? text.taskLoadError : error === "save" ? text.taskSaveError : error === "validation" ? text.taskTitleRequired : null);
+  const errorMessage = requestError ?? (error === "load" ? text.taskLoadError : error === "save" ? text.taskSaveError : error === "validation" ? text.taskTitleRequired : error === "schedule" ? text.scheduleError : null);
   const priorityStyles: Record<TaskPriority, string> = {
     low: "bg-[#e6f0ff] text-[#23539a] dark:bg-[#1e2d46] dark:text-[#b7d2ff]",
     medium: "bg-[#fff0d6] text-[#8a5200] dark:bg-[#3a2c17] dark:text-[#f1ca7a]",
@@ -523,6 +570,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                 {text.taskDescription}
                 <textarea value={description} onChange={(event) => setDescription(event.target.value)} maxLength={2000} rows={2} placeholder={text.taskDescriptionPlaceholder} className="min-h-16 min-w-0 resize-y rounded-xl border border-[#dfe5de] bg-[#fcfcfa] px-3.5 py-2.5 text-sm outline-none transition placeholder:text-[#9aa39c] focus:border-[#719378] focus:ring-2 focus:ring-[#719378]/15 dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9] dark:placeholder:text-[#839087]" />
               </label>
+              {isAdvanced && <ScheduleFields date={scheduledDate} time={scheduledTime} duration={durationMinutes} timeZone={timeZone} labels={{ date: text.scheduledDate, time: text.startTime, duration: text.duration, minutes: text.minutes, timeSavedUtc: text.timeSavedUtc }} onDateChange={setScheduledDate} onTimeChange={setScheduledTime} onDurationChange={setDurationMinutes} />}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <TaskDatePicker
                   label={text.dueDate}
@@ -540,7 +588,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                   <TaskSelect label={text.priorityLabel} value={priority} onChange={(next) => setPriority(next as TaskPriority)} options={priorities} portalContainer={createTaskDialogRef} />
                 </div>
               </div>
-              {(error === "save" || error === "validation") && errorMessage && <p role="alert" className="rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{errorMessage}</p>}
+              {(error === "save" || error === "validation" || error === "schedule") && errorMessage && <p role="alert" className="rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{errorMessage}</p>}
               <div className="flex flex-col-reverse justify-end gap-2.5 border-t border-[#edf0eb] pt-3 dark:border-[#2d3a31] sm:flex-row">
                 <button type="button" onClick={closeCreateDialog} className="inline-flex h-10 items-center justify-center rounded-xl border border-[#dfe5de] px-5 text-sm font-semibold text-[#526056] transition hover:bg-[#f4f6f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#315d3c] dark:border-[#34443a] dark:text-[#d3ddd5] dark:hover:bg-[#253128] dark:focus-visible:ring-[#9fbea4]">
                   {text.cancel}
@@ -577,9 +625,28 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
           </div>
         </div>
 
+        {isAdvanced && (
+          <div className="mt-5 inline-flex rounded-xl border border-[#dfe5de] bg-white p-1 dark:border-[#34443a] dark:bg-[#1a251e]" role="tablist" aria-label={text.dayPlanner}>
+            <button type="button" role="tab" aria-selected={activeView === "day"} onClick={() => setActiveView("day")} className={`min-h-10 rounded-lg px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#719378] ${activeView === "day" ? "bg-[#17452d] text-white dark:bg-[#2f6a46]" : "text-[#5c6b60] hover:bg-[#f3f6f2] dark:text-[#c4d0c7] dark:hover:bg-[#253128]"}`}>{text.dayPlanner}</button>
+            <button type="button" role="tab" aria-selected={activeView === "board"} onClick={() => setActiveView("board")} className={`min-h-10 rounded-lg px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#719378] ${activeView === "board" ? "bg-[#17452d] text-white dark:bg-[#2f6a46]" : "text-[#5c6b60] hover:bg-[#f3f6f2] dark:text-[#c4d0c7] dark:hover:bg-[#253128]"}`}>{text.boardView}</button>
+          </div>
+        )}
+
         {errorMessage && (error === "load" || !isCreateDialogOpen) && <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]"><span>{errorMessage}</span>{error === "load" && <button type="button" onClick={() => { setError(null); setIsLoading(true); setLoadAttempt((attempt) => attempt + 1); }} className="rounded-lg px-3 py-1.5 font-semibold text-[#17452d] outline-none hover:bg-[#fbe5e1] focus-visible:ring-2 focus-visible:ring-[#719378] dark:text-[#c1d8c5] dark:hover:bg-[#3b2724]">{text.retry}</button>}</div>}
         {signOutFailed && <p role="alert" className="mt-3 rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{text.signOutError}</p>}
 
+        {isAdvanced && activeView === "day" ? (
+          <DayPlanner
+            tasks={tasks}
+            locale={locale}
+            timeZone={timeZone}
+            statusOptions={columns.map(({ status: value, title: label }) => ({ value, label }))}
+            priorityOptions={priorities}
+            onEdit={startEditing}
+            onStatusChange={(task, nextStatus) => void moveTask(task, nextStatus)}
+            labels={{ today: text.today, upcoming: text.upcoming, overdue: text.overdue, allTasks: text.allTasks, filterStatus: text.filterStatus, filterPriority: text.filterPriority, allStatuses: text.allStatuses, allPriorities: text.allPriorities, searchTasks: text.searchTasks, unscheduled: text.unscheduled, noTasksForDay: text.noTasksForDay, minutes: text.minutes, editTask: text.editTask, previousDay: text.previousDay, nextDay: text.nextDay, dayPlanner: text.dayPlanner }}
+          />
+        ) : (
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={onDragEnd} accessibility={{
           screenReaderInstructions: { draggable: locale === "so" ? "Riix space si aad u qaaddo. Isticmaal fallaaraha si aad u dhaqaajiso, space si aad u dhigto, ama Escape si aad u joojiso." : "Press space to pick up. Use the arrow keys to move, space to drop, or Escape to cancel." },
           announcements: {
@@ -629,6 +696,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                               {text.taskDescription}
                               <textarea value={editDescription} onChange={(event) => setEditDescription(event.target.value)} maxLength={2000} rows={2} className="resize-y rounded-lg border border-[#dfe5de] bg-[#fcfcfa] px-3 py-2 text-sm text-[#18211c] outline-none focus:border-[#719378] dark:border-[#34443a] dark:bg-[#151e18] dark:text-[#e8eee9]" />
                             </label>
+                            {isAdvanced && <ScheduleFields date={editScheduledDate} time={editScheduledTime} duration={editDurationMinutes} timeZone={timeZone} labels={{ date: text.scheduledDate, time: text.startTime, duration: text.duration, minutes: text.minutes, timeSavedUtc: text.timeSavedUtc }} onDateChange={setEditScheduledDate} onTimeChange={setEditScheduledTime} onDurationChange={setEditDurationMinutes} />}
                             <TaskDatePicker
                               label={text.dueDate}
                               value={editDueDate}
@@ -736,6 +804,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
           })}
         </div>
         </DndContext>
+        )}
       </section>
       {taskToDelete && (
         <dialog

@@ -10,29 +10,37 @@ import { LanguageSwitcher } from "@/components/languageSwitcher";
 import { ThemeSwitcher } from "@/components/themeSwitcher";
 import { useLanguage } from "@/components/languageProvider";
 import { authClient } from "@/features/auth/client";
+import { utcOffsetLabel } from "@/features/tasks/time";
 
 type ProfileSettingsProps = {
   initialName: string;
   initialEmail: string;
   initialPhoneNumber: string;
   initialImage: string | null;
+  initialPlanningMode: string;
+  initialTimeZone: string;
 };
 
-export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber, initialImage }: ProfileSettingsProps) {
+export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber, initialImage, initialPlanningMode, initialTimeZone }: ProfileSettingsProps) {
   const { text } = useLanguage();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(initialName);
   const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber);
   const [image, setImage] = useState<string | null>(initialImage);
-  const [savedProfile, setSavedProfile] = useState({ name: initialName, phoneNumber: initialPhoneNumber, image: initialImage });
+  const [planningMode, setPlanningMode] = useState(initialPlanningMode === "advanced" ? "advanced" : "basic");
+  const [timeZone, setTimeZone] = useState(initialTimeZone);
+  const [savedProfile, setSavedProfile] = useState({ name: initialName, phoneNumber: initialPhoneNumber, image: initialImage, planningMode: initialPlanningMode === "advanced" ? "advanced" : "basic", timeZone: initialTimeZone });
   const [isSaving, setIsSaving] = useState(false);
   const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [isRemovePhotoDialogOpen, setIsRemovePhotoDialogOpen] = useState(false);
 
-  const hasChanges = name.trim() !== savedProfile.name || phoneNumber.trim() !== savedProfile.phoneNumber || image !== savedProfile.image;
+  const hasChanges = name.trim() !== savedProfile.name || phoneNumber.trim() !== savedProfile.phoneNumber || image !== savedProfile.image || planningMode !== savedProfile.planningMode || timeZone !== savedProfile.timeZone;
+  const timeZones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : ["Africa/Mogadishu", "Africa/Nairobi", "UTC", "Europe/London", "America/New_York"];
+  if (!timeZones.includes("Africa/Mogadishu")) timeZones.unshift("Africa/Mogadishu");
+  if (!timeZones.includes(timeZone)) timeZones.unshift(timeZone);
 
   useEffect(() => {
     if (!isRemovePhotoDialogOpen) return;
@@ -97,13 +105,15 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
         name: name.trim(),
         phoneNumber: cleanedPhone,
         image,
+        planningMode,
+        timeZone,
       });
       if (result.error) {
         setError(text.profileSaveError);
         return;
       }
 
-      setSavedProfile({ name: name.trim(), phoneNumber: cleanedPhone, image });
+      setSavedProfile({ name: name.trim(), phoneNumber: cleanedPhone, image, planningMode, timeZone });
       setSaved(true);
       router.refresh();
     } catch {
@@ -178,6 +188,26 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
               <span className="inline-flex items-center gap-2"><Mail className="size-4 text-[#78917c]" aria-hidden="true" />{text.emailAddress}</span>
               <div className="flex h-11 items-center rounded-xl border border-[#e6eae5] bg-[#f7f8f6] px-3.5 text-sm font-normal text-[#7a857d] dark:border-[#34443a] dark:bg-[#202b23] dark:text-[#aebbb1]">{initialEmail}</div>
             </div>
+
+            <fieldset className="grid gap-4 rounded-2xl border border-[#e5eae3] bg-[#fcfcfa] p-4 dark:border-[#34443a] dark:bg-[#151e18] sm:p-5">
+              <legend className="px-1 text-sm font-semibold text-[#25342a] dark:text-[#e2eae4]">{text.taskPlanningSettings}</legend>
+              <p className="-mt-2 text-xs leading-5 text-[#768078] dark:text-[#aebbb1]">{text.taskPlanningDescription}</p>
+              <label className="grid gap-1.5 text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
+                {text.planningMode}
+                <select value={planningMode} onChange={(event) => { setPlanningMode(event.target.value); setSaved(false); }} className="h-11 rounded-xl border border-[#dfe5de] bg-white px-3.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#1a251e] dark:text-[#e8eee9]">
+                  <option value="basic">{text.basicMode}</option>
+                  <option value="advanced">{text.advancedMode}</option>
+                </select>
+                <span className="text-xs font-normal leading-5 text-[#768078] dark:text-[#aebbb1]">{planningMode === "advanced" ? text.advancedModeDescription : text.basicModeDescription}</span>
+              </label>
+              <label className="grid gap-1.5 text-sm font-medium text-[#425047] dark:text-[#d3ddd5]">
+                {text.timeZone}
+                <select value={timeZone} onChange={(event) => { setTimeZone(event.target.value); setSaved(false); }} className="h-11 rounded-xl border border-[#dfe5de] bg-white px-3.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#719378] dark:border-[#34443a] dark:bg-[#1a251e] dark:text-[#e8eee9]">
+                  {timeZones.map((zone) => <option key={zone} value={zone}>{zone.replaceAll("_", " ")}</option>)}
+                </select>
+                <span className="text-xs font-normal text-[#768078] dark:text-[#aebbb1]">{text.timeZoneDescription} · {utcOffsetLabel(timeZone)}</span>
+              </label>
+            </fieldset>
 
             {error && <p role="alert" className="rounded-xl border border-[#efd4cf] bg-[#fff5f2] px-4 py-3 text-sm text-[#9a4538] dark:border-[#69453f] dark:bg-[#2a1c19] dark:text-[#f0b6aa]">{error}</p>}
             {saved && <p role="status" className="inline-flex items-center gap-2 text-sm font-medium text-[#28613c] dark:text-[#b9d8bd]"><Check className="size-4" aria-hidden="true" />{text.profileSaved}</p>}

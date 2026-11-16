@@ -9,6 +9,8 @@ const userSchema = new Schema(
     emailVerified: { type: Boolean, required: true },
     image: { type: String },
     phoneNumber: { type: String },
+    planningMode: { type: String, enum: ["basic", "advanced"], default: "basic" },
+    timeZone: { type: String, default: "Africa/Mogadishu" },
     createdAt: { type: Date, required: true },
     updatedAt: { type: Date, required: true },
   },

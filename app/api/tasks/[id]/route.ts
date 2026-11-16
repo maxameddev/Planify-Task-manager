@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongoose";
 import { getAuthenticatedUserId } from "@/features/auth/api/getAuthenticatedUserId";
 import { TaskModel } from "@/features/tasks/model";
-import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, serializeTask, taskErrorResponse, type TaskPriority, type TaskStatus } from "@/features/tasks/contracts";
+import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, isValidDurationMinutes, isValidScheduledAt, serializeTask, taskErrorResponse, type TaskPriority, type TaskStatus } from "@/features/tasks/contracts";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -41,7 +41,7 @@ export async function PUT(request: Request, context: RouteContext) {
     if (!isTaskInput(body)) return taskErrorResponse("A task object is required.", 400);
 
     const input = body as Record<string, unknown>;
-    const updates: { title?: string; description?: string; status?: TaskStatus; priority?: TaskPriority; dueDate?: Date | null; isPinned?: boolean; position?: number } = {};
+    const updates: { title?: string; description?: string; status?: TaskStatus; priority?: TaskPriority; dueDate?: Date | null; scheduledAt?: Date | null; durationMinutes?: number | null; isPinned?: boolean; position?: number } = {};
 
     if ("position" in input) {
       if (typeof input.position !== "number" || !Number.isFinite(input.position)) return taskErrorResponse("Position is invalid.", 400);
@@ -80,6 +80,25 @@ export async function PUT(request: Request, context: RouteContext) {
         updates.dueDate = new Date(`${input.dueDate}T00:00:00.000Z`);
       }
     }
+    if ("scheduledAt" in input) {
+      if (input.scheduledAt === null || input.scheduledAt === "") {
+        updates.scheduledAt = null;
+      } else {
+        if (!isValidScheduledAt(input.scheduledAt)) return taskErrorResponse("Scheduled time must be a valid UTC date-time.", 400);
+        updates.scheduledAt = new Date(input.scheduledAt);
+      }
+    }
+    if ("durationMinutes" in input) {
+      if (input.durationMinutes === null) updates.durationMinutes = null;
+      else {
+        if (!isValidDurationMinutes(input.durationMinutes)) return taskErrorResponse("Duration must be between 5 and 720 minutes.", 400);
+        updates.durationMinutes = input.durationMinutes;
+      }
+    }
+    const resultingScheduledAt = updates.scheduledAt === undefined ? result.task.scheduledAt : updates.scheduledAt;
+    const resultingDuration = updates.durationMinutes === undefined ? result.task.durationMinutes : updates.durationMinutes;
+    if (resultingScheduledAt && !resultingDuration) return taskErrorResponse("Choose a duration for a scheduled task.", 400);
+    if (!resultingScheduledAt && resultingDuration) return taskErrorResponse("A start time is required when setting a duration.", 400);
     if (Object.keys(updates).length === 0) {
       return taskErrorResponse("Provide at least one task field to update.", 400);
     }
