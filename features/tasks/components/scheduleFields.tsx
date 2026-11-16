@@ -32,7 +32,7 @@ type ScheduleFieldsProps = {
   onDurationChange: (value: string) => void;
 };
 
-const durations = [15, 30, 45, 60, 90, 120, 180, 240, 360, 480, 720];
+const durations = [60, 90, 120, 180, 240, 360, 480, 720];
 const twoDigits = (value: number) => String(value).padStart(2, "0");
 const hours = Array.from({ length: 24 }, (_, hour) => ({ value: twoDigits(hour), label: twoDigits(hour) }));
 const minutes = Array.from({ length: 60 }, (_, minute) => ({ value: twoDigits(minute), label: twoDigits(minute) }));
@@ -43,7 +43,7 @@ export function ScheduleFields({ date, time, duration, timeZone, locale, portalC
   const minute = selectedMinute && /^\d{2}$/.test(selectedMinute) ? selectedMinute : "00";
 
   return (
-    <fieldset className="grid gap-3 rounded-2xl border border-[#dce7da] bg-[#f7faf5] p-4 dark:border-[#34443a] dark:bg-[#18221b] sm:grid-cols-3">
+    <fieldset className="grid min-w-0 gap-3 rounded-2xl border border-[#dce7da] bg-[#f7faf5] p-4 dark:border-[#34443a] dark:bg-[#18221b] sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)]">
       <legend className="px-1 text-xs font-semibold uppercase tracking-wide text-[#425047] dark:text-[#d3ddd5]">{labels.schedule}</legend>
       <TaskDatePicker
         label={labels.date}
@@ -84,7 +84,7 @@ export function ScheduleFields({ date, time, duration, timeZone, locale, portalC
         label={labels.duration}
         value={duration}
         onChange={onDurationChange}
-        options={durations.map((value) => ({ value: String(value), label: `${value} ${labels.minutes}` }))}
+        options={durations.map((value) => ({ value: String(value), label: `${value / 60}h` }))}
         portalContainer={portalContainer}
         triggerClassName="h-10"
       />

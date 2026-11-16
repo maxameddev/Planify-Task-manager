@@ -208,6 +208,7 @@ export function ProfileSettings({ initialName, initialEmail, initialPhoneNumber,
                 {text.timeZone}
                 <TaskSelect
                   label={text.timeZone}
+                  hideLabel
                   value={timeZone}
                   onChange={(value) => { setTimeZone(value); setSaved(false); }}
                   options={timeZones.map((zone) => ({ value: zone, label: zone.split("/").map((part) => part.replaceAll("_", " ")).join(" · ") }))}

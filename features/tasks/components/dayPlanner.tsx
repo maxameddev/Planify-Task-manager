@@ -130,7 +130,7 @@ export function DayPlanner({ tasks, timeZone, locale, labels, statusOptions, pri
             <article key={task.id} className="grid gap-3 rounded-2xl border border-[#e0e8de] bg-white p-4 shadow-sm shadow-[#183c22]/[0.03] dark:border-[#34443a] dark:bg-[#1a251e] sm:grid-cols-[8rem_minmax(0,1fr)_auto] sm:items-center">
               <div className="flex items-center gap-2 text-sm font-semibold text-[#315d3c] dark:text-[#b7cfba]">
                 <Clock3 className="size-4 shrink-0" aria-hidden="true" />
-                {task.scheduledAt ? <span>{timeInTimeZone(task.scheduledAt, timeZone, locale)}{task.durationMinutes ? ` · ${task.durationMinutes} ${labels.minutes}` : ""}</span> : <span>{labels.unscheduled}</span>}
+                {task.scheduledAt ? <span>{timeInTimeZone(task.scheduledAt, timeZone, locale)}{task.durationMinutes ? ` · ${task.durationMinutes / 60}h` : ""}</span> : <span>{labels.unscheduled}</span>}
               </div>
               <div className="min-w-0">
                 <h3 className={`break-words text-sm font-semibold ${task.status === "completed" ? "text-[#6e7b70] line-through dark:text-[#adbbb0]" : "text-[#1d3023] dark:text-[#e2eae4]"}`}>{task.title}</h3>

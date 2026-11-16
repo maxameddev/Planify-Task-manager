@@ -1,15 +1,16 @@
 import { connectToDatabase } from "@/lib/mongoose";
-import { getAuthenticatedUserId } from "@/features/auth/api/getAuthenticatedUserId";
+import { getAuthenticatedUser } from "@/features/auth/api/getAuthenticatedUserId";
 import { TaskModel } from "@/features/tasks/model";
 import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, isValidDurationMinutes, isValidScheduledAt, serializeTask, taskErrorResponse } from "@/features/tasks/contracts";
+import { dateInTimeZone } from "@/features/tasks/time";
 
 export async function GET(request: Request) {
   try {
-    const userId = await getAuthenticatedUserId(request);
-    if (!userId) return taskErrorResponse("Authentication required.", 401);
+    const user = await getAuthenticatedUser(request);
+    if (!user) return taskErrorResponse("Authentication required.", 401);
 
     await connectToDatabase();
-    const tasks = await TaskModel.find({ userId }).sort({ isPinned: -1, createdAt: -1 }).lean();
+    const tasks = await TaskModel.find({ userId: user.id }).sort({ isPinned: -1, createdAt: -1 }).lean();
     return Response.json({ tasks: tasks.map(serializeTask) });
   } catch {
     return taskErrorResponse("Unable to load tasks.", 500);
@@ -18,8 +19,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const userId = await getAuthenticatedUserId(request);
-    if (!userId) return taskErrorResponse("Authentication required.", 401);
+    const user = await getAuthenticatedUser(request);
+    if (!user) return taskErrorResponse("Authentication required.", 401);
 
     const body: unknown = await request.json();
     if (!isTaskInput(body)) return taskErrorResponse("A task object is required.", 400);
@@ -43,6 +44,9 @@ export async function POST(request: Request) {
     if (scheduledAt !== undefined && scheduledAt !== null && scheduledAt !== "" && !isValidScheduledAt(scheduledAt)) {
       return taskErrorResponse("Scheduled time must be a valid UTC date-time.", 400);
     }
+    if (typeof dueDate === "string" && dueDate && typeof scheduledAt === "string" && scheduledAt && dueDate <= dateInTimeZone(new Date(scheduledAt), user.timeZone)) {
+      return taskErrorResponse("The due date must be later than the scheduled date.", 400);
+    }
     if (durationMinutes !== undefined && durationMinutes !== null && !isValidDurationMinutes(durationMinutes)) {
       return taskErrorResponse("Duration must be between 5 and 720 minutes.", 400);
     }
@@ -58,7 +62,7 @@ export async function POST(request: Request) {
       durationMinutes: typeof durationMinutes === "number" ? durationMinutes : null,
       status: status === undefined ? "todo" : status,
       priority: priority === undefined ? "medium" : priority,
-      userId,
+      userId: user.id,
     });
 
     return Response.json({ task: serializeTask(task) }, { status: 201 });
