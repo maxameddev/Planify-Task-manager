@@ -212,7 +212,6 @@ export default function Home() {
                     <p className="truncate text-sm font-semibold text-[#26352b] dark:text-[#e0e9e2]">{testimonial.name}</p>
                     <p className="mt-0.5 text-xs text-[#626f65] dark:text-[#aab7ad]">{testimonial.role}</p>
                   </div>
-                  <span className="ml-auto shrink-0 rounded-full bg-[#eaf1e9] px-2.5 py-1 text-[10px] font-semibold text-[#41604a] dark:bg-[#24352a] dark:text-[#c3d9c5]">{text.testimonialSampleLabel}</span>
                 </div>
                 <div className={`relative flex-1 rounded-[1.5rem] border p-6 shadow-[0_14px_36px_-30px_rgba(23,63,43,0.35)] ${index === 1 ? "border-[#e3e9e2] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" : "border-[#dfe8dc] bg-[#eef3eb] dark:border-[#34443a] dark:bg-[#202d24]"}`}>
                   <span aria-hidden="true" className={`absolute -top-2 left-7 size-4 rotate-45 border-l border-t ${index === 1 ? "border-[#e3e9e2] bg-white dark:border-[#34443a] dark:bg-[#1a251e]" : "border-[#dfe8dc] bg-[#eef3eb] dark:border-[#34443a] dark:bg-[#202d24]"}`} />
