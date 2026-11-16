@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { Messages } from "@/lib/i18n";
+import { BrandMark } from "@/components/brandLogo";
 
 type LandingDashboardPreviewProps = { text: Messages };
 
@@ -47,9 +48,7 @@ export function LandingDashboardPreview({ text }: LandingDashboardPreviewProps) 
         <div aria-hidden="true" className="grid min-h-[360px] grid-cols-[48px_minmax(0,1fr)] sm:min-h-[400px] sm:grid-cols-[132px_minmax(0,1fr)] lg:min-h-[clamp(350px,29vw,410px)] lg:grid-cols-[130px_minmax(0,1fr)] xl:grid-cols-[150px_minmax(0,1fr)]">
           <aside className="flex flex-col bg-gradient-to-b from-[#0c3a29] to-[#082f22] px-1.5 py-3 text-white sm:px-3 sm:py-4">
             <div className="mb-5 flex items-center justify-center gap-2 sm:mb-7 sm:justify-start">
-              <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white/10 ring-1 ring-white/15">
-                <Check className="size-4" aria-hidden="true" />
-              </span>
+              <BrandMark inverse className="h-5 w-7 shrink-0" />
               <span className="hidden text-sm font-semibold tracking-tight sm:inline">Planify</span>
             </div>
             <nav aria-label={text.mainNavigation} className="space-y-1">

@@ -3,21 +3,22 @@ type BrandLogoProps = {
   inverse?: boolean;
 };
 
+export function BrandMark({ className = "", inverse = false }: { className?: string; inverse?: boolean }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 48 32" fill="none" className={className}>
+      <path d="M5 25.5 11.5 16" stroke="#a4c99d" strokeWidth="7" strokeLinecap="round" />
+      <path d="M17 25.5 26 12" stroke="#69a973" strokeWidth="7" strokeLinecap="round" />
+      <path d="m29 22 4 3.5L43 8" stroke={inverse ? "#ffffff" : "currentColor"} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function BrandLogo({ size = "md", inverse = false }: BrandLogoProps) {
   const isSmall = size === "sm";
-
   return (
-    <span className="inline-flex items-center gap-2.5" aria-label="Planify">
-      <span
-        aria-hidden="true"
-        className={`grid shrink-0 place-items-center ${isSmall ? "size-8 rounded-xl" : "size-10 rounded-2xl"} ${inverse ? "bg-white text-[#173f2b]" : "bg-[#173f2b] text-white"}`}
-      >
-        <svg viewBox="0 0 40 40" className={isSmall ? "size-5" : "size-6"} fill="none">
-          <path d="M13 6.75h8l6.25 6.25v15.5a2.5 2.5 0 0 1-2.5 2.5h-12a2.5 2.5 0 0 1-2.5-2.5V9.25a2.5 2.5 0 0 1 2.5-2.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-          <path d="M21 7v5a1 1 0 0 0 1 1h5M13.75 19l2.75 2.75 4.75-5.25M22.75 19h2.5M13.75 26h11.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </span>
-      <span className={`font-semibold tracking-[-0.04em] ${isSmall ? "text-base" : "text-xl"} ${inverse ? "text-white" : ""}`}>Planify</span>
+    <span className={`inline-flex items-center gap-1.5 ${inverse ? "text-white" : "text-[#173f2b] dark:text-[#e2eee4]"}`} aria-label="Planify">
+      <BrandMark inverse={inverse} className={isSmall ? "h-6 w-9 shrink-0" : "h-8 w-12 shrink-0"} />
+      <span className={`font-semibold tracking-[-0.04em] ${isSmall ? "text-base" : "text-xl"}`}>Planify</span>
     </span>
   );
 }

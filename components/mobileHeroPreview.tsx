@@ -1,4 +1,5 @@
-import { Check, FileCheck, Menu, MoreVertical, Sun } from "lucide-react";
+import { Check, Menu, MoreVertical, Sun } from "lucide-react";
+import { BrandMark } from "@/components/brandLogo";
 import type { Messages } from "@/lib/i18n";
 
 export function MobileHeroPreview({ text }: { text: Messages }) {
@@ -14,7 +15,7 @@ export function MobileHeroPreview({ text }: { text: Messages }) {
       <div aria-hidden="true" className="relative z-10 h-[320px] w-[175px] -rotate-[5deg] overflow-hidden rounded-[9px] border-[4px] border-[#35413a] bg-[#fbfcfa] shadow-[5px_10px_16px_-7px_rgba(16,54,31,0.55)] ring-2 ring-[#a3afa7] dark:border-[#42614a] dark:bg-[#16221a]">
         <div className="absolute left-1/2 top-1.5 size-2 -translate-x-1/2 rounded-full bg-[#1d2b22]" />
         <div className="px-3 pb-3 pt-6 text-left text-[#17221b] dark:text-[#e8eee9]">
-          <div className="flex items-center justify-between pb-2"><span className="flex items-center gap-1 text-[10px] font-bold"><span className="grid size-5 place-items-center rounded-md bg-[#10482e] text-white"><FileCheck className="size-3" /></span>Planify</span><span className="flex items-center gap-2"><Sun className="size-3" /><Menu className="size-3" /></span></div>
+          <div className="flex items-center justify-between pb-2"><span className="flex items-center gap-1 text-[10px] font-bold text-[#173f2b] dark:text-[#dcebdc]"><BrandMark className="h-4 w-6" />Planify</span><span className="flex items-center gap-2"><Sun className="size-3" /><Menu className="size-3" /></span></div>
           <p className="mt-3 text-base font-bold tracking-tight">{text.previewTaskList}</p>
           <div className="mt-2 flex gap-1 whitespace-nowrap text-[6px] font-medium"><span className="rounded-full bg-[#17984d] px-1.5 py-1 text-white">{text.today}</span><span className="rounded-full bg-[#edf1ec] px-1.5 py-1 text-[#4b5d50]">{text.previewProgressStat}</span><span className="rounded-full bg-[#edf1ec] px-1.5 py-1 text-[#4b5d50]">{text.completed}</span></div>
           <div className="mt-4 space-y-3">
