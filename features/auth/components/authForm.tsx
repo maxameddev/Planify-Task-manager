@@ -11,6 +11,10 @@ import { Spinner } from "@/components/ui/spinner";
 
 type AuthFormProps = { mode: "login" | "register"; initialEmail?: string };
 
+function isRateLimitError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "status" in error && error.status === 429;
+}
+
 export function RegisterAuthForm() {
   const searchParams = useSearchParams();
   return <AuthForm mode="register" initialEmail={searchParams.get("email") ?? ""} />;
@@ -116,14 +120,18 @@ export function AuthForm({ mode, initialEmail }: AuthFormProps) {
           });
 
       if (result.error) {
+        if (isRateLimitError(result.error)) {
+          setError(text.authRateLimited);
+          return;
+        }
         setError(isRegister ? getSignUpErrorMessage(text, result.error.code) : text.authError);
         return;
       }
 
       router.push("/dashboard");
       router.refresh();
-    } catch {
-      setError(isRegister ? text.registerError : text.authError);
+    } catch (error) {
+      setError(isRateLimitError(error) ? text.authRateLimited : isRegister ? text.registerError : text.authError);
     } finally {
       setIsSubmitting(false);
     }
@@ -137,9 +145,9 @@ export function AuthForm({ mode, initialEmail }: AuthFormProps) {
         provider: "google",
         callbackURL: "/dashboard",
       });
-      if (result.error) setError(text.googleError);
-    } catch {
-      setError(text.googleError);
+      if (result.error) setError(isRateLimitError(result.error) ? text.authRateLimited : text.googleError);
+    } catch (error) {
+      setError(isRateLimitError(error) ? text.authRateLimited : text.googleError);
     } finally {
       setIsSubmitting(false);
     }
