@@ -99,11 +99,13 @@ export async function PUT(request: Request, context: RouteContext) {
     const resultingScheduledAt = updates.scheduledAt === undefined ? result.task.scheduledAt : updates.scheduledAt;
     const resultingDueDate = updates.dueDate === undefined ? result.task.dueDate : updates.dueDate;
     const resultingDuration = updates.durationMinutes === undefined ? result.task.durationMinutes : updates.durationMinutes;
-    if (resultingDueDate && resultingScheduledAt && resultingDueDate.toISOString().slice(0, 10) <= dateInTimeZone(resultingScheduledAt, result.timeZone)) {
-      return taskErrorResponse("The due date must be later than the scheduled date.", 400);
+    if ("scheduledAt" in input || "durationMinutes" in input) {
+      if (resultingDueDate && resultingScheduledAt && resultingDueDate.toISOString().slice(0, 10) <= dateInTimeZone(resultingScheduledAt, result.timeZone)) {
+        return taskErrorResponse("The due date must be later than the scheduled date.", 400);
+      }
+      if (resultingScheduledAt && !resultingDuration) return taskErrorResponse("Choose a duration for a scheduled task.", 400);
+      if (!resultingScheduledAt && resultingDuration) return taskErrorResponse("A start time is required when setting a duration.", 400);
     }
-    if (resultingScheduledAt && !resultingDuration) return taskErrorResponse("Choose a duration for a scheduled task.", 400);
-    if (!resultingScheduledAt && resultingDuration) return taskErrorResponse("A start time is required when setting a duration.", 400);
     if (Object.keys(updates).length === 0) {
       return taskErrorResponse("Provide at least one task field to update.", 400);
     }
