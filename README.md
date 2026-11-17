@@ -23,7 +23,7 @@ npm run build
 
 ## Authentication setup
 
-Copy `.env.example` to `.env`, then set the MongoDB Atlas URI, a unique Better Auth secret, and Google OAuth credentials. Generate a secret with:
+Copy `.env.example` to `.env`, then set the MongoDB Atlas URI, a unique Better Auth secret, and Google OAuth credentials. Set `BETTER_AUTH_URL` to the public HTTPS app URL in production; Vercel's assigned production or preview URL is used automatically if that variable is missing or invalid. Generate a secret with:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
