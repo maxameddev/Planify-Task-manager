@@ -492,7 +492,10 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
             data-closing={dialogClosing || undefined}
             aria-labelledby="create-task-title"
             onClick={(event) => {
-              if (event.target === event.currentTarget) closeCreateDialog();
+              if (event.target !== event.currentTarget) return;
+              const bounds = event.currentTarget.getBoundingClientRect();
+              const clickIsInsideDialog = event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom;
+              if (!clickIsInsideDialog) closeCreateDialog();
             }}
             onCancel={(event) => {
               event.preventDefault();
@@ -661,7 +664,7 @@ export function DashboardContent({ userName, userEmail, userImage }: DashboardCo
                               <div className="min-w-0 flex-1 pr-8">
                                 <h3 className={`break-words text-base font-bold leading-6 tracking-[-0.015em] sm:text-[17px] ${task.status === "completed" ? "text-[#53695a] line-through dark:text-[#adbbb0]" : "text-[#172b1e] dark:text-[#e2eae4]"}`}>{task.title}</h3>
                                 {task.isPinned && <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#e8f0e7] px-2 py-0.5 text-[10px] font-semibold text-[#285c38] dark:bg-[#2b3d2f] dark:text-[#c2ddc6]"><Pin className="size-3 fill-current" aria-hidden="true" />{text.pinned}</span>}
-                                {task.description && <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#4b5d50] dark:text-[#c5d0c7]">{task.description}</p>}
+                                {task.description && <p className="mt-2 min-w-0 whitespace-pre-wrap break-words text-[13px] leading-5 [overflow-wrap:anywhere] text-[#4b5d50] dark:text-[#c5d0c7] sm:text-sm sm:leading-6">{task.description}</p>}
                               </div>
                               <Menu.Root>
                                 <Menu.Trigger
