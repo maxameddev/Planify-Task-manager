@@ -43,6 +43,8 @@ test("task serialization preserves API fields and formats dates consistently", (
     isPinned: false,
     position: -createdAt.getTime(),
     dueDate: "2026-11-12",
+    scheduledAt: null,
+    durationMinutes: null,
     createdAt: createdAt.toISOString(),
     updatedAt: createdAt.toISOString(),
   });

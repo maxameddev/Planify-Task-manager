@@ -11,16 +11,36 @@ const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const isProduction = process.env.NODE_ENV === "production";
 const isVercelDeployment = process.env.VERCEL === "1";
 const configuredAuthBaseURL = process.env.BETTER_AUTH_URL?.trim();
-const authBaseURLFallback = configuredAuthBaseURL ?? (
-  isProduction ? undefined : "http://localhost:3000"
-);
+
+const vercelDeploymentHost = isProduction
+  ? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL
+  : process.env.VERCEL_BRANCH_URL ?? process.env.VERCEL_URL ?? process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const vercelDeploymentBaseURL = vercelDeploymentHost
+  ? `${vercelDeploymentHost.startsWith("https://") ? "" : "https://"}${vercelDeploymentHost}`
+  : undefined;
+
+function isPublicHttpsURL(value: string | undefined) {
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname !== "localhost";
+  } catch {
+    return false;
+  }
+}
+
+const authBaseURLFallback = isVercelDeployment
+  ? isPublicHttpsURL(configuredAuthBaseURL)
+    ? configuredAuthBaseURL
+    : vercelDeploymentBaseURL ?? configuredAuthBaseURL
+  : configuredAuthBaseURL ?? (isProduction ? undefined : "http://localhost:3000");
 
 if (!authBaseURLFallback) {
   throw new Error("BETTER_AUTH_URL must be set in production (for example, https://your-app.vercel.app).");
 }
 
 const parsedAuthBaseURL = new URL(authBaseURLFallback);
-if (isProduction && (parsedAuthBaseURL.protocol !== "https:" || parsedAuthBaseURL.hostname === "localhost")) {
+if (isProduction && !isPublicHttpsURL(authBaseURLFallback)) {
   throw new Error("BETTER_AUTH_URL must be the public HTTPS URL of the production app.");
 }
 
@@ -82,7 +102,8 @@ export const auth = betterAuth({
   rateLimit: {
     enabled: true,
     window: 60,
-    max: 100,
+    max: 10,
+    storage: "database",
     customRules: {
       "/sign-in/email": { window: 60, max: 5 },
       "/sign-up/email": { window: 60, max: 5 },

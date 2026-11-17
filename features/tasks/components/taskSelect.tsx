@@ -38,7 +38,7 @@ export function TaskSelect({ label, value, onChange, options, portalContainer, h
       </Select.Trigger>
       <Select.Portal container={portalContainer}>
         <Select.Positioner side="bottom" align="start" alignItemWithTrigger={false} positionMethod="fixed" collisionBoundary={portalContainer?.current ?? "clipping-ancestors"} collisionAvoidance={{ align: "shift", side: "flip" }} sideOffset={6} collisionPadding={12} className="z-[100] max-w-[calc(100vw-2rem)] outline-none">
-          <Select.Popup className="planify-popup w-[var(--anchor-width)] max-w-[calc(100vw-2rem)] max-h-[min(18rem,var(--available-height))] overflow-x-hidden overflow-y-auto rounded-xl border border-[#dfe5de] bg-white p-1.5 shadow-xl shadow-[#153521]/15 outline-none dark:border-[#3a4b3e] dark:bg-[#1b271f] dark:shadow-black/30">
+          <Select.Popup onClick={(event) => event.stopPropagation()} className="planify-popup w-[var(--anchor-width)] max-w-[calc(100vw-2rem)] max-h-[min(18rem,var(--available-height))] overflow-x-hidden overflow-y-auto rounded-xl border border-[#dfe5de] bg-white p-1.5 shadow-xl shadow-[#153521]/15 outline-none dark:border-[#3a4b3e] dark:bg-[#1b271f] dark:shadow-black/30">
             <Select.List>
               {options.map((option) => (
                 <Select.Item
