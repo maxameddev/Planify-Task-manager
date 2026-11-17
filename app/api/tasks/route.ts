@@ -3,11 +3,14 @@ import { getAuthenticatedUser } from "@/features/auth/api/getAuthenticatedUserId
 import { TaskModel } from "@/features/tasks/model";
 import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, isValidDurationMinutes, isValidScheduledAt, serializeTask, taskErrorResponse } from "@/features/tasks/contracts";
 import { dateInTimeZone } from "@/features/tasks/time";
+import { checkApiRateLimit, rateLimitResponse } from "@/features/security/rateLimit";
 
 export async function GET(request: Request) {
   try {
     const user = await getAuthenticatedUser(request);
     if (!user) return taskErrorResponse("Authentication required.", 401);
+    const rateLimit = await checkApiRateLimit(user.id);
+    if (!rateLimit.allowed) return rateLimitResponse(rateLimit.retryAfterSeconds);
 
     await connectToDatabase();
     const tasks = await TaskModel.find({ userId: user.id }).sort({ isPinned: -1, createdAt: -1 }).lean();
@@ -21,6 +24,8 @@ export async function POST(request: Request) {
   try {
     const user = await getAuthenticatedUser(request);
     if (!user) return taskErrorResponse("Authentication required.", 401);
+    const rateLimit = await checkApiRateLimit(user.id);
+    if (!rateLimit.allowed) return rateLimitResponse(rateLimit.retryAfterSeconds);
 
     const body: unknown = await request.json();
     if (!isTaskInput(body)) return taskErrorResponse("A task object is required.", 400);

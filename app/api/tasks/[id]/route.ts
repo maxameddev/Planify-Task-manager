@@ -4,12 +4,15 @@ import { getAuthenticatedUser } from "@/features/auth/api/getAuthenticatedUserId
 import { TaskModel } from "@/features/tasks/model";
 import { isTaskInput, isTaskPriority, isTaskStatus, isValidDueDate, isValidDurationMinutes, isValidScheduledAt, serializeTask, taskErrorResponse, type TaskPriority, type TaskStatus } from "@/features/tasks/contracts";
 import { dateInTimeZone } from "@/features/tasks/time";
+import { checkApiRateLimit, rateLimitResponse } from "@/features/security/rateLimit";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 async function getOwnedTask(request: Request, context: RouteContext) {
   const user = await getAuthenticatedUser(request);
   if (!user) return { response: taskErrorResponse("Authentication required.", 401) };
+  const rateLimit = await checkApiRateLimit(user.id);
+  if (!rateLimit.allowed) return { response: rateLimitResponse(rateLimit.retryAfterSeconds) };
 
   const { id } = await context.params;
   if (!mongoose.isValidObjectId(id)) {
